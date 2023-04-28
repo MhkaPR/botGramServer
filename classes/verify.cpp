@@ -3,7 +3,7 @@
 
 Verify::Verify(QSqlDatabase db,loginPacket packet) : database(db)
 {
-   QJsonDocument doc = QJsonDocument::fromJson(packet.JsonInformation);
+    QJsonDocument doc = QJsonDocument::fromJson(packet.JsonInformation);
 
     QJsonObject objs= doc.object();
     username = objs.value("username").toString();
@@ -33,7 +33,17 @@ SysCodes Verify::Login()
         sendmessage(LoginQuery.value(0).toString());
 
         if(LoginQuery.value("password").toString() == password)
-         {
+        {
+
+            LoginQuery.clear();
+            LoginQuery.prepare("UPDATE "+name+" SET Logined = 1 WHERE username = :username AND password = :password");
+            LoginQuery.bindValue(":username",username);
+            LoginQuery.bindValue(":password",password);
+            if(!LoginQuery.exec())
+            {
+            sendmessage(LoginQuery.lastError().text());
+            }
+
             return login_confrimed;
         }
         else return password_is_not_correct;
