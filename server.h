@@ -21,6 +21,7 @@
 #include <QSqlRecord>
 #include <QSqlQueryModel>
 
+#include "classes/database.h"
 #include "classes/verify.h"
 #include "classes/authentication.h"
 

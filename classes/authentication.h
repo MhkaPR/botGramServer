@@ -11,6 +11,7 @@ class Authentication : public DataBase
 public:
     Authentication();
     CheckVerifySafePacket getSafeVerify();
+
 private:
     CheckVerifySafePacket safeVerify;
 };

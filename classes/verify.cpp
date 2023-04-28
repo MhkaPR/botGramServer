@@ -89,3 +89,31 @@ SysCodes Verify::checkForSignIn()
         else return  s_send_apply_For_Link;
     }
 }
+
+bool Verify::addNewUser()
+{
+    QSqlQuery addUser(database);
+    addUser.prepare("INSERT INTO "+name+
+                    " (username,password,email,Name,Logined)"
+                    " VALUES (:u,:p,:e,NULL,:l)");
+    addUser.bindValue(":u",username);
+    addUser.bindValue(":p",password);
+    addUser.bindValue(":e",email);
+    addUser.bindValue(":l",1);
+    if(!addUser.exec())
+    {
+        sendmessage("Failed to execute query:" + addUser.lastError().text());
+        return false;
+    }
+    return true;
+
+}
+
+userInfo Verify::UserInformation()
+{
+    userInfo user;
+    user.username = username;
+    user.password = password;
+    user.email = email;
+    return  user;
+}

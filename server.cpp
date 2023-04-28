@@ -154,14 +154,33 @@ void server::PacketsHandle()
         }
         break;
     }
-case addUser_to_UsersDatabase:
+    case ADDUSER_TO_USERS_DATABASE:
     {
         AddUser_SPacket user;
-
-
         in >>user.data;
-        //sendmessage(loginData.JsonInformation);
+        //decode data...
 
+
+
+        loginPacket userL;
+        userL.JsonInformation = user.data;
+
+        Verify myVerify(mydb,userL);
+        if(!myVerify.addNewUser())
+        {
+            exit(1);
+        }
+        userInfo SignedUser;
+        SignedUser=myVerify.UserInformation();
+        ui->plainTextEdit->appendPlainText("added user :\n" +
+                                           SignedUser.username
+                                           +" // "
+                                           +SignedUser.password
+                                           +" // "
+                                           +SignedUser.email);
+
+
+        clients.last()->write("");
         break;
     }
     default:break;

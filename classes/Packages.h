@@ -7,7 +7,8 @@ enum HEADERS : short
     VERIFY,
     SYSTEM,
     SAFE_VERIFY,
-    addUser_to_UsersDatabase,
+    ADDUSER_TO_USERS_DATABASE,
+    TOKENUSER,
 
 };
 enum SysCodes : short
@@ -77,23 +78,23 @@ struct systemMessagePacket : headerPackage
            return in;
        }
 };
-struct CheckVerifySafe : headerPackage
+struct CheckVerifySafePacket : headerPackage
 {
 
     QString Link;
     QString Answer;
 
-    CheckVerifySafe() {
+    CheckVerifySafePacket() {
         header = SAFE_VERIFY;
     }
 
-    friend QDataStream &operator<<(QDataStream &out,const CheckVerifySafe &data)
+    friend QDataStream &operator<<(QDataStream &out,const CheckVerifySafePacket &data)
        {
             out << static_cast<short>(data.header) << data.Link << data.Answer;
            return out;
        }
 
-       friend QDataStream &operator>>(QDataStream &in, CheckVerifySafe &data)
+       friend QDataStream &operator>>(QDataStream &in, CheckVerifySafePacket &data)
        {
            short headerAsint;
            short msgAsshort;
@@ -107,7 +108,7 @@ struct AddUser_SPacket : headerPackage
 
     QByteArray data;
     AddUser_SPacket() {
-        header = addUser_to_UsersDatabase;
+        header = ADDUSER_TO_USERS_DATABASE;
     }
     friend QDataStream &operator<<(QDataStream &out,const AddUser_SPacket &data)
        {
@@ -120,6 +121,28 @@ struct AddUser_SPacket : headerPackage
            short headerAsint;
            short msgAsshort;
            in >> headerAsint >> data.data;
+           data.header = static_cast<HEADERS>(headerAsint);
+           return in;
+       }
+};
+struct TokenPacket : headerPackage
+{
+  QString Token;
+    TokenPacket()
+    {
+        header = TOKENUSER;
+    }
+    friend QDataStream &operator<<(QDataStream &out,const TokenPacket &data)
+       {
+            out << static_cast<short>(data.header) << data.Token;
+           return out;
+       }
+
+       friend QDataStream &operator>>(QDataStream &in, TokenPacket &data)
+       {
+           short headerAsint;
+           short msgAsshort;
+           in >> headerAsint >> data.Token;
            data.header = static_cast<HEADERS>(headerAsint);
            return in;
        }
