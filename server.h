@@ -21,6 +21,8 @@
 #include <QSqlRecord>
 #include <QSqlQueryModel>
 
+#include "classes/verify.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }
 QT_END_NAMESPACE
@@ -32,10 +34,12 @@ class server : public QMainWindow
 
 public:
     server(QWidget *parent = nullptr);
+    inline void sendmessage(QString str);
     ~server();
 
 private slots:
     void ProgressOfClients();
+    void PacketsHandle();
 private:
     Ui::server *ui;
 
@@ -46,5 +50,8 @@ private:
     QString DB_Name = "ServerDb.db";
     QTcpServer *tcpServer = nullptr;
     QList<QString> fortunes;
+
+    QList<QTcpSocket*> clients;
+
 };
 #endif // SERVER_H

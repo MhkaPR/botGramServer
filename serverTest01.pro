@@ -19,13 +19,17 @@ DESTDIR = $$PWD
 
 SOURCES += \
     classes/database.cpp \
+    classes/verify.cpp \
     main.cpp \
-    server.cpp
+    server.cpp \
+#    verify.cpp
 
 HEADERS += \
     classes/Packages.h \
     classes/database.h \
-    server.h
+    classes/verify.h \
+    server.h \
+#    verify.h
 
 FORMS += \
     server.ui

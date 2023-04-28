@@ -1,7 +1,9 @@
 
 #include "server.h"
 #include "ui_server.h"
+#include "classes/Packages.h"
 #define PORT 9999
+#define MAX_LENGTH_DATA 1024
 server::server(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::server)
@@ -13,37 +15,6 @@ server::server(QWidget *parent)
     {
         QApplication::quit();
     }
-
-    QSqlQuery query;
-    query.prepare("SELECT * FROM mytb");
-
-
-    if (!query.exec()) {
-        QString Error = "Failed to execute query:" + query.lastError().text();
-        QMessageBox::critical(this,"!",Error);
-    } else {
-        while (query.next()) {
-            int field1 = query.value(0).toInt();
-            QString field2 = query.value(1).toString();
-            QString ans = "Record: " + field2 +" " + QString::number(field1);
-            QMessageBox::information(this,"data",ans);
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     tcpServer = new QTcpServer(this);
     if (!tcpServer->listen(QHostAddress::Any,PORT)) {
@@ -69,18 +40,11 @@ server::server(QWidget *parent)
         if (ipAddress.isEmpty())
         ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
 
-    ui->lbl->setText(tr("The server is running on\n\nIP: %1\nport: %2\n\n"
-                        "Run the Fortune Client example now.")
+    ui->lbl->setText(tr("The server is running on\n\nIP: %1\nport: %2\n\n")
                      .arg(ipAddress).arg(tcpServer->serverPort()));
 
 
-    /*fortunes << tr("You've been leading a dog's life. Stay off the furniture.")
-             << tr("You've got to think about tomorrow.")
-             << tr("You will be surprised by a loud noise.")
-             << tr("You will feel hungry again in another hour.")
-             << tr("You might have mail.")
-             << tr("You cannot kill time without injuring eternity.")
-             << tr("Computers are not intelligent. They only think they are.");*/
+
 
 
     connect(tcpServer, &QTcpServer::newConnection, this, &server::ProgressOfClients);
@@ -88,30 +52,15 @@ server::server(QWidget *parent)
 
 }
 
+inline void server::sendmessage(QString str)
+{
+    QMessageBox::information(this,"message",str);
+}
+
 server::~server()
 {
     delete ui;
 }
-
-void server::ProgressOfClients()
-{
-    //QMessageBox::information(this,"","connected");
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-
-    //out << fortunes[QRandomGenerator::global()->bounded(fortunes.size())];
-
-    QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-
-
-    connect(clientConnection, &QAbstractSocket::disconnected,
-            clientConnection, &QObject::deleteLater);
-
-    clientConnection->write(block);
-    clientConnection->disconnectFromHost();
-}
-
 bool server::connectToDB(const QString name)
 {
     mydb = QSqlDatabase::addDatabase("QSQLITE");
@@ -126,3 +75,92 @@ bool server::connectToDB(const QString name)
         return true;
     }
 }
+
+void server::PacketsHandle()
+{
+   QByteArray buffer ;
+   QDataStream in(&buffer,QIODevice::ReadOnly);
+   in.setVersion(QDataStream::Qt_4_0);
+   buffer = clients.last()->read(MAX_LENGTH_DATA); // get maximum 1024 kb
+
+   short header;  in >> header;
+
+
+   //check header
+   switch (header) {
+   case VERIFY:
+   {
+
+    loginPacket loginData;
+
+    in >>loginData.JsonInformation;
+    //sendmessage(loginData.JsonInformation);
+    Verify myVerify(mydb,loginData);
+
+    if(myVerify.IsLogin)
+    {
+        systemMessagePacket SysMsg;
+        SysMsg.msg=myVerify.Login();
+        QByteArray answerBuf;
+        QDataStream out(&answerBuf,QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_0);
+
+        out << SysMsg;
+
+        clients.last()->write(answerBuf);
+
+    }
+    else
+    {
+
+    }
+
+   }
+    break;
+   case SYSTEM:
+       break;
+   default:break;
+   }
+
+
+
+
+
+
+
+}
+
+
+
+void server::ProgressOfClients()
+{
+//    //QMessageBox::information(this,"","connected");
+//    QByteArray block;
+//    QDataStream out(&block, QIODevice::WriteOnly);
+//    out.setVersion(QDataStream::Qt_4_0);
+
+//    //out << fortunes[QRandomGenerator::global()->bounded(fortunes.size())];
+
+//    QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
+
+
+//    connect(clientConnection, &QAbstractSocket::disconnected,
+//            clientConnection, &QObject::deleteLater);
+
+//    clientConnection->write(block);
+//    clientConnection->disconnectFromHost();
+
+     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
+
+    ui->plainTextEdit->appendPlainText("new Connection : "+QString::number(clientConnection->socketDescriptor()));
+
+     clients.append(clientConnection);
+
+     connect(clientConnection,&QAbstractSocket::readyRead,this,&server::PacketsHandle);
+     connect(clientConnection, &QAbstractSocket::disconnected,clientConnection, &QObject::deleteLater);
+     //clientConnection->disconnectFromHost();
+
+
+}
+
+

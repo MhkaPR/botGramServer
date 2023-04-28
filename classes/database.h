@@ -8,19 +8,28 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSqlQueryModel>
+//json
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
+#include <QMessageBox>
 class DataBase
 {
 public:
     DataBase();
-    void sendMessage(QString);
-    int Toint(QString);
 
+    int Toint(QString);
+    void sendmessage(QString str);
     //connection to dataBase
     //root node must be :dataroot
 
     bool createDataBase(QString);
 
     bool save_modifies();
+protected:
+    QString name;
+
 
 };
 
