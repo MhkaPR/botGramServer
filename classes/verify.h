@@ -14,6 +14,7 @@ public:
     Verify(QSqlDatabase db,loginPacket packet);
     bool IsLogin;
     SysCodes Login();
+    SysCodes checkForSignIn();
 private:
     QSqlDatabase database;
     QString username;
