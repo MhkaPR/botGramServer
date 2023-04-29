@@ -182,9 +182,13 @@ void server::PacketsHandle()
         QByteArray answerBuf;
         QDataStream out(&answerBuf,QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_0);
+        TokenBuilder T(DB_Name,mydb);
+        TokenPacket Clienttoken;
+        Clienttoken.Token = T.token();
+        out << Clienttoken;
+        clients.last()->write(answerBuf);
 
 
-        clients.last()->write("");
         break;
     }
     default:break;

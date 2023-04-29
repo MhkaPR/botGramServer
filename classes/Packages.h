@@ -2,6 +2,8 @@
 #define PACKAGES_H
 #include <QObject>
 #include <QJsonDocument>
+#include "database.h"
+
 enum HEADERS : short
 {
     VERIFY,
@@ -40,18 +42,18 @@ struct loginPacket : headerPackage
     }
 
     friend QDataStream &operator<<(QDataStream &out,const loginPacket &data)
-       {
-            out << static_cast<short>(data.header) << data.JsonInformation;
-           return out;
-       }
+    {
+        out << static_cast<short>(data.header) << data.JsonInformation;
+        return out;
+    }
 
-       friend QDataStream &operator>>(QDataStream &in, loginPacket &data)
-       {
-           short headerAsint;
-           in >> headerAsint >> data.JsonInformation;
-           data.header = static_cast<HEADERS>(headerAsint);
-           return in;
-       }
+    friend QDataStream &operator>>(QDataStream &in, loginPacket &data)
+    {
+        short headerAsint;
+        in >> headerAsint >> data.JsonInformation;
+        data.header = static_cast<HEADERS>(headerAsint);
+        return in;
+    }
 };
 struct systemMessagePacket : headerPackage
 {
@@ -63,20 +65,20 @@ struct systemMessagePacket : headerPackage
     }
 
     friend QDataStream &operator<<(QDataStream &out,const systemMessagePacket &data)
-       {
-            out << static_cast<short>(data.header) << static_cast<short>(data.msg);
-           return out;
-       }
+    {
+        out << static_cast<short>(data.header) << static_cast<short>(data.msg);
+        return out;
+    }
 
-       friend QDataStream &operator>>(QDataStream &in, systemMessagePacket &data)
-       {
-           short headerAsint;
-           short msgAsshort;
-           in >> headerAsint >> msgAsshort;
-           data.header = static_cast<HEADERS>(headerAsint);
-           data.msg = static_cast<SysCodes>(msgAsshort);
-           return in;
-       }
+    friend QDataStream &operator>>(QDataStream &in, systemMessagePacket &data)
+    {
+        short headerAsint;
+        short msgAsshort;
+        in >> headerAsint >> msgAsshort;
+        data.header = static_cast<HEADERS>(headerAsint);
+        data.msg = static_cast<SysCodes>(msgAsshort);
+        return in;
+    }
 };
 struct CheckVerifySafePacket : headerPackage
 {
@@ -89,19 +91,19 @@ struct CheckVerifySafePacket : headerPackage
     }
 
     friend QDataStream &operator<<(QDataStream &out,const CheckVerifySafePacket &data)
-       {
-            out << static_cast<short>(data.header) << data.Link << data.Answer;
-           return out;
-       }
+    {
+        out << static_cast<short>(data.header) << data.Link << data.Answer;
+        return out;
+    }
 
-       friend QDataStream &operator>>(QDataStream &in, CheckVerifySafePacket &data)
-       {
-           short headerAsint;
-           short msgAsshort;
-           in >> headerAsint >> data.Link >> data.Answer;
-           data.header = static_cast<HEADERS>(headerAsint);
-           return in;
-       }
+    friend QDataStream &operator>>(QDataStream &in, CheckVerifySafePacket &data)
+    {
+        short headerAsint;
+        short msgAsshort;
+        in >> headerAsint >> data.Link >> data.Answer;
+        data.header = static_cast<HEADERS>(headerAsint);
+        return in;
+    }
 };
 struct AddUser_SPacket : headerPackage
 {
@@ -111,41 +113,43 @@ struct AddUser_SPacket : headerPackage
         header = ADDUSER_TO_USERS_DATABASE;
     }
     friend QDataStream &operator<<(QDataStream &out,const AddUser_SPacket &data)
-       {
-            out << static_cast<short>(data.header) << data.data;
-           return out;
-       }
+    {
+        out << static_cast<short>(data.header) << data.data;
+        return out;
+    }
 
-       friend QDataStream &operator>>(QDataStream &in, AddUser_SPacket &data)
-       {
-           short headerAsint;
-           short msgAsshort;
-           in >> headerAsint >> data.data;
-           data.header = static_cast<HEADERS>(headerAsint);
-           return in;
-       }
+    friend QDataStream &operator>>(QDataStream &in, AddUser_SPacket &data)
+    {
+        short headerAsint;
+        short msgAsshort;
+        in >> headerAsint >> data.data;
+        data.header = static_cast<HEADERS>(headerAsint);
+        return in;
+    }
 };
 struct TokenPacket : headerPackage
 {
-  QString Token;
+
+    QString Token;
     TokenPacket()
     {
         header = TOKENUSER;
+
     }
     friend QDataStream &operator<<(QDataStream &out,const TokenPacket &data)
-       {
-            out << static_cast<short>(data.header) << data.Token;
-           return out;
-       }
+    {
+        out << static_cast<short>(data.header) << data.Token;
+        return out;
+    }
 
-       friend QDataStream &operator>>(QDataStream &in, TokenPacket &data)
-       {
-           short headerAsint;
-           short msgAsshort;
-           in >> headerAsint >> data.Token;
-           data.header = static_cast<HEADERS>(headerAsint);
-           return in;
-       }
+    friend QDataStream &operator>>(QDataStream &in, TokenPacket &data)
+    {
+        short headerAsint;
+        short msgAsshort;
+        in >> headerAsint >> data.Token;
+        data.header = static_cast<HEADERS>(headerAsint);
+        return in;
+    }
 };
 
 #endif // PACKAGES_H
