@@ -94,7 +94,7 @@ void server::PacketsHandle()
         loginPacket loginData;
 
         in >>loginData.JsonInformation;
-        //sendmessage(loginData.JsonInformation);
+        sendmessage(loginData.JsonInformation);
         Verify myVerify(mydb,loginData);
 
         if(myVerify.IsLogin)
@@ -178,6 +178,10 @@ void server::PacketsHandle()
                                            +SignedUser.password
                                            +" // "
                                            +SignedUser.email);
+
+        QByteArray answerBuf;
+        QDataStream out(&answerBuf,QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_0);
 
 
         clients.last()->write("");
