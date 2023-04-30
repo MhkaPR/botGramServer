@@ -25,3 +25,21 @@ QString TokenBuilder::token()
 {
     return Token;
 }
+
+bool TokenBuilder::IsCorrectToken(QString str)
+{
+
+    QSqlQuery Q(db);
+
+    Q.prepare("SELECT Token FROM "+TableName+" WHERE Token = :t");
+    Q.bindValue(":t",str);
+    if(!Q.exec())
+    {
+        sendmessage(Q.lastError().text());
+        Q.clear();
+        db.close();
+        exit(1);
+    }
+    if(Q.next()) return false;
+    return true;
+}

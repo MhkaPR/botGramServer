@@ -161,12 +161,19 @@ void server::PacketsHandle()
         //decode data...
 
 
+        QByteArray answerBuf;
+        QDataStream out(&answerBuf,QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_0);
+        TokenBuilder T(DB_Name,mydb);
+        TokenPacket Clienttoken;
+        Clienttoken.Token = T.token();
+        out << Clienttoken;
 
         loginPacket userL;
         userL.JsonInformation = user.data;
 
         Verify myVerify(mydb,userL);
-        if(!myVerify.addNewUser())
+        if(!myVerify.addNewUser(T.token()))
         {
             exit(1);
         }
@@ -177,15 +184,11 @@ void server::PacketsHandle()
                                            +" // "
                                            +SignedUser.password
                                            +" // "
-                                           +SignedUser.email);
+                                           +SignedUser.email
+                                           +" // Token: "
+                                           +T.token());
 
-        QByteArray answerBuf;
-        QDataStream out(&answerBuf,QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_4_0);
-        TokenBuilder T(DB_Name,mydb);
-        TokenPacket Clienttoken;
-        Clienttoken.Token = T.token();
-        out << Clienttoken;
+
         clients.last()->write(answerBuf);
 
 

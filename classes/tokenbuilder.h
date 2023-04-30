@@ -21,22 +21,7 @@ private:
     QString Token;
 
 
-    bool IsCorrectToken(QString str)
-    {
-        QSqlQuery Q(db);
-
-        Q.prepare("SELECT token FROM "+TableName+" WHERE token = :t");
-        Q.bindValue(":t",str);
-        if(!Q.exec())
-        {
-            sendmessage(Q.lastError().text());
-            Q.clear();
-            db.close();
-            exit(1);
-        }
-        if(Q.next()) return false;
-        return true;
-    }
+    bool IsCorrectToken(QString str);
 };
 
 

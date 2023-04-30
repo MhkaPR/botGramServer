@@ -15,7 +15,7 @@ public:
     bool IsLogin;
     SysCodes Login();
     SysCodes checkForSignIn();
-    bool addNewUser();
+    bool addNewUser(QString Token);
     userInfo UserInformation();
 
 

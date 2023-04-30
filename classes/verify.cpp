@@ -90,16 +90,17 @@ SysCodes Verify::checkForSignIn()
     }
 }
 
-bool Verify::addNewUser()
+bool Verify::addNewUser(QString Token)
 {
     QSqlQuery addUser(database);
     addUser.prepare("INSERT INTO "+name+
-                    " (username,password,email,Name,Logined)"
-                    " VALUES (:u,:p,:e,NULL,:l)");
+                    " (username,password,email,Name,Logined,Token)"
+                    " VALUES (:u,:p,:e,NULL,:l,:t)");
     addUser.bindValue(":u",username);
     addUser.bindValue(":p",password);
     addUser.bindValue(":e",email);
     addUser.bindValue(":l",1);
+    addUser.bindValue(":t",Token);
     if(!addUser.exec())
     {
         sendmessage("Failed to execute query:" + addUser.lastError().text());
