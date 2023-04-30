@@ -8,6 +8,7 @@ Verify::Verify(QSqlDatabase db,loginPacket packet) : database(db)
     QJsonObject objs= doc.object();
     username = objs.value("username").toString();
     password = objs.value("password").toString();
+    email = objs.value("email").toString();
     IsLogin = objs.value("islogin").toBool();
     name = "Users_Information";
 }
@@ -24,13 +25,13 @@ SysCodes Verify::Login()
 
     if(!LoginQuery.exec())
     {
-        QString Error = "Failed to execute query:" + LoginQuery.lastError().text();
-        //handle error
+        sendmessage("Failed to execute query:" + LoginQuery.lastError().text());
+        exit(1);
     }
 
     if(LoginQuery.next())
     {
-        sendmessage(LoginQuery.value(0).toString());
+        ///sendmessage(LoginQuery.value(0).toString());
 
         if(LoginQuery.value("password").toString() == password)
         {
@@ -41,7 +42,7 @@ SysCodes Verify::Login()
             LoginQuery.bindValue(":password",password);
             if(!LoginQuery.exec())
             {
-            sendmessage(LoginQuery.lastError().text());
+                sendmessage(LoginQuery.lastError().text());
             }
 
             return login_confrimed;
@@ -50,4 +51,70 @@ SysCodes Verify::Login()
     }
     else return username_not_found;
 
+}
+
+SysCodes Verify::checkForSignIn()
+{
+    QSqlQuery LoginQuery(database);
+    LoginQuery.prepare("SELECT * FROM "+
+                       name+
+                       " WHERE username = :username");
+    LoginQuery.bindValue(":username",username);
+
+
+    if(!LoginQuery.exec())
+    {
+        sendmessage("Failed to execute query:" + LoginQuery.lastError().text());
+        exit(1);
+        //handle error
+    }
+
+    if(LoginQuery.next())
+    {
+        return s_username_is_repititive;
+    }
+    else
+    {
+        LoginQuery.clear();
+        LoginQuery.prepare("SELECT * FROM "+
+                           name+
+                           " WHERE email = :email");
+        LoginQuery.bindValue(":email",email);
+        if(!LoginQuery.exec())
+        {
+            sendmessage("Failed to execute query:" + LoginQuery.lastError().text());
+            exit(1);
+        }
+        if(LoginQuery.next()) return s_email_is_repititive;
+        else return  s_send_apply_For_Link;
+    }
+}
+
+bool Verify::addNewUser(QString Token)
+{
+    QSqlQuery addUser(database);
+    addUser.prepare("INSERT INTO "+name+
+                    " (username,password,email,Name,Logined,Token)"
+                    " VALUES (:u,:p,:e,NULL,:l,:t)");
+    addUser.bindValue(":u",username);
+    addUser.bindValue(":p",password);
+    addUser.bindValue(":e",email);
+    addUser.bindValue(":l",1);
+    addUser.bindValue(":t",Token);
+    if(!addUser.exec())
+    {
+        sendmessage("Failed to execute query:" + addUser.lastError().text());
+        return false;
+    }
+    return true;
+
+}
+
+userInfo Verify::UserInformation()
+{
+    userInfo user;
+    user.username = username;
+    user.password = password;
+    user.email = email;
+    return  user;
 }

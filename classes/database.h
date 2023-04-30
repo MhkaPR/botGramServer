@@ -14,6 +14,13 @@
 #include <QJsonArray>
 
 #include <QMessageBox>
+
+struct userInfo
+{
+    QString username;
+    QString password;
+    QString email;
+};
 class DataBase
 {
 public:

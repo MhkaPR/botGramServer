@@ -21,7 +21,10 @@
 #include <QSqlRecord>
 #include <QSqlQueryModel>
 
+#include "classes/database.h"
 #include "classes/verify.h"
+#include "classes/authentication.h"
+#include "classes/tokenbuilder.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }

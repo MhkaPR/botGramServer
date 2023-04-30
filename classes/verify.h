@@ -14,11 +14,17 @@ public:
     Verify(QSqlDatabase db,loginPacket packet);
     bool IsLogin;
     SysCodes Login();
+    SysCodes checkForSignIn();
+    bool addNewUser(QString Token);
+    userInfo UserInformation();
+
+
 private:
     QSqlDatabase database;
     QString username;
     QString password;
     QString email;
+     QString BuildToken();
 };
 
 
