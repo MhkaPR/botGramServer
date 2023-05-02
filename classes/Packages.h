@@ -1,16 +1,27 @@
 #ifndef PACKAGES_H
 #define PACKAGES_H
+
 #include <QObject>
 #include <QJsonDocument>
-#include "database.h"
+#include <QTime>
+
 
 enum HEADERS : short
 {
+    CONNECT,
     VERIFY,
     SYSTEM,
     SAFE_VERIFY,
     ADDUSER_TO_USERS_DATABASE,
     TOKENUSER,
+    TEXTMESSAGE,
+
+};
+enum SEND_STATE : short
+{
+    sendMode,
+    recieveMode,
+    readedMode
 
 };
 enum SysCodes : short
@@ -151,5 +162,56 @@ struct TokenPacket : headerPackage
         return in;
     }
 };
+struct TextMessage : headerPackage
+{
+    QString sender;
+    QString Reciever;
+    QString Message;
+    QTime timeSend;
+    SEND_STATE stateMessage;
 
+    friend QDataStream &operator<<(QDataStream &out,const TextMessage &data)
+    {
+        out << static_cast<short>(data.header) << data.sender << data.Reciever
+            << data.Message << data.timeSend.toString() << static_cast<short>(data.stateMessage);
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, TextMessage &data)
+    {
+        short headerAsint;
+        short state_short;
+        QString time;
+        in >> headerAsint >> data.sender >> data.Reciever >> data.Message >> time >> state_short ;
+
+        data.header = static_cast<HEADERS>(headerAsint);
+        data.timeSend =data.timeSend.fromString(time);
+        data.stateMessage = static_cast<SEND_STATE>(state_short);
+        return in;
+    }
+    TextMessage() {
+        header =TEXTMESSAGE;
+    }
+};
+struct ConnectPacket : headerPackage
+{
+    QString Token;
+
+    friend QDataStream &operator<<(QDataStream &out,const ConnectPacket &data)
+    {
+        out << static_cast<short>(data.header) << data.Token;
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, ConnectPacket &data)
+    {
+        short headerAsint;
+        in >> headerAsint >> data.Token;
+        data.header = static_cast<HEADERS>(headerAsint);
+        return in;
+    }
+    ConnectPacket() {
+        header = CONNECT;
+    }
+};
 #endif // PACKAGES_H

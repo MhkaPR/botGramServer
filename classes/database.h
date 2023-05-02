@@ -28,6 +28,7 @@ public:
 
     int Toint(QString);
     void sendmessage(QString str);
+
     //connection to dataBase
     //root node must be :dataroot
 

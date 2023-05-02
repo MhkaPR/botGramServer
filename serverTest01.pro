@@ -19,6 +19,7 @@ DESTDIR = $$PWD
 
 SOURCES += \
     classes/authentication.cpp \
+    classes/client_mssages.cpp \
     classes/database.cpp \
     classes/textmessage.cpp \
     classes/tokenbuilder.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
 HEADERS += \
     classes/Packages.h \
     classes/authentication.h \
+    classes/client_mssages.h \
     classes/database.h \
     classes/textmessage.h \
     classes/tokenbuilder.h \

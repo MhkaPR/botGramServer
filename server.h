@@ -5,6 +5,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QList>
+#include <QMap>
 
 #include <QTcpServer>
 #include <QMessageBox>
@@ -25,6 +26,7 @@
 #include "classes/verify.h"
 #include "classes/authentication.h"
 #include "classes/tokenbuilder.h"
+#include "classes/client_mssages.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }
@@ -43,6 +45,7 @@ public:
 private slots:
     void ProgressOfClients();
     void PacketsHandle();
+    void disConnectClient();
 private:
     Ui::server *ui;
 
@@ -54,7 +57,10 @@ private:
     QTcpServer *tcpServer = nullptr;
     QList<QString> fortunes;
 
+
+    QMap<QTcpSocket*,QString> Clients;
     QList<QTcpSocket*> clients;
+    QList<QString> Clients_Username;
 
 };
 #endif // SERVER_H
