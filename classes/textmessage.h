@@ -4,42 +4,23 @@
 #include <QObject>
 #include "database.h"
 #include <QTime>
-#include "Packages.h"
+#include "package.h"
 
-class TextMessage : public DataBase
+
+class TextMessage : public package
 {
 public:
     TextMessage();
+    virtual void serialize(QByteArray buffer);
+    virtual QByteArray deserialize();
 private:
-    enum SendState
-    {
-        Sent,
-        Sent_Recive,
-        Seen,
 
-    };
-    HEADERS header;
+
+    QString sender;
+    QString Reciever;
     QString Message;
-    QString Sender;
-    QString Receiver;
     QTime timeSend;
-    SendState MessageState;
-    friend QDataStream &operator<<(QDataStream &out,const TextMessage &data)
-    {
-        out << static_cast<short>(data.header) << data.Sender << data.Receiver <<
-               data.Message << data.timeSend.toString() << static_cast<short>(data.MessageState);
-    }
-    friend QDataStream &operator>>(QDataStream &in, TextMessage &data)
-    {
-        QString time;
-        short header;
-        short MessageState;
-        in >> header >> data.Sender >> data.Receiver >>
-                data.Message >> time >>  MessageState ;
-        data.header = static_cast<HEADERS>(header);
-        data.MessageState = static_cast<SendState>(MessageState);
-        data.timeSend = data.timeSend.fromString(time);
-    }
-    };
+    SEND_STATE stateMessage;
+};
 
 #endif // TEXTMESSAGE_H

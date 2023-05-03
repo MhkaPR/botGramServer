@@ -170,28 +170,28 @@ struct TextMessage : headerPackage
     QTime timeSend;
     SEND_STATE stateMessage;
 
-    friend QDataStream &operator<<(QDataStream &out,const TextMessage &data)
-    {
-        out << static_cast<short>(data.header) << data.sender << data.Reciever
-            << data.Message << data.timeSend.toString() << static_cast<short>(data.stateMessage);
-        return out;
-    }
+//    friend QDataStream &operator<<(QDataStream &out,const TextMessage &data)
+//    {
+//        out << static_cast<short>(data.header) << data.sender << data.Reciever
+//            << data.Message << data.timeSend.toString() << static_cast<short>(data.stateMessage);
+//        return out;
+//    }
 
-    friend QDataStream &operator>>(QDataStream &in, TextMessage &data)
-    {
-        short headerAsint;
-        short state_short;
-        QString time;
-        in >> headerAsint >> data.sender >> data.Reciever >> data.Message >> time >> state_short ;
+//    friend QDataStream &operator>>(QDataStream &in, TextMessage &data)
+//    {
+//        short headerAsint;
+//        short state_short;
+//        QString time;
+//        in >> headerAsint >> data.sender >> data.Reciever >> data.Message >> time >> state_short ;
 
-        data.header = static_cast<HEADERS>(headerAsint);
-        data.timeSend =data.timeSend.fromString(time);
-        data.stateMessage = static_cast<SEND_STATE>(state_short);
-        return in;
-    }
-    TextMessage() {
-        header =TEXTMESSAGE;
-    }
+//        data.header = static_cast<HEADERS>(headerAsint);
+//        data.timeSend =data.timeSend.fromString(time);
+//        data.stateMessage = static_cast<SEND_STATE>(state_short);
+//        return in;
+//    }
+//    TextMessage() {
+//        header =TEXTMESSAGE;
+//    }
 };
 struct ConnectPacket : headerPackage
 {

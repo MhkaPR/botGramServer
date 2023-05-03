@@ -21,6 +21,8 @@ SOURCES += \
     classes/authentication.cpp \
     classes/client_mssages.cpp \
     classes/database.cpp \
+    classes/package.cpp \
+#    classes/package.cpp \
     classes/textmessage.cpp \
     classes/tokenbuilder.cpp \
     classes/verify.cpp \
@@ -33,6 +35,8 @@ HEADERS += \
     classes/authentication.h \
     classes/client_mssages.h \
     classes/database.h \
+    classes/package.h \
+#    classes/package.h \
     classes/textmessage.h \
     classes/tokenbuilder.h \
     classes/verify.h \
