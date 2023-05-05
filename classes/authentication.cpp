@@ -3,8 +3,10 @@
 Authentication::Authentication()
 {
    int ans = QRandomGenerator::global()->bounded(9000)+1000;
-    safeVerify.Link = QString::number(ans);
-     safeVerify.Answer = QString::number(ans);
+
+
+    safeVerify.setLink(QString::number(ans));
+     safeVerify.setAnswer(QString::number(ans));
 
 }
 

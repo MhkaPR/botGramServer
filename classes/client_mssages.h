@@ -12,6 +12,8 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSqlQueryModel>
+#include "textmessage.h"
+#include "queriespacket.h"
 
 class Client_Mssages : DataBase
 {

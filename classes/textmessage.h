@@ -11,13 +11,17 @@ class TextMessage : public package
 {
 public:
     TextMessage();
-    virtual void serialize(QByteArray buffer);
-    virtual QByteArray deserialize();
+    virtual void deserialize(QByteArray buffer);
+    virtual QByteArray serialize();
+
+    QString getSender();
+     QString getReciever();
+      QString getMessage();
+       QTime gettimeSend();
+       SEND_STATE getstateMessage();
 private:
-
-
     QString sender;
-    QString Reciever;
+    QString Reciever ;
     QString Message;
     QTime timeSend;
     SEND_STATE stateMessage;

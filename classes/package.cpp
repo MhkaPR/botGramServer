@@ -33,3 +33,8 @@ package::HEADERS package::unPacketing(QByteArray &bufferPacket)
 
 }
 
+package::HEADERS package::getheader()
+{
+    return  header;
+}
+

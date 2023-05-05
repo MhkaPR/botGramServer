@@ -3,7 +3,7 @@
 
 Verify::Verify(QSqlDatabase db,loginPacket packet) : database(db)
 {
-    QJsonDocument doc = QJsonDocument::fromJson(packet.JsonInformation);
+    QJsonDocument doc = QJsonDocument::fromJson(packet.getJsonLoginData());
 
     QJsonObject objs= doc.object();
     username = objs.value("username").toString();
@@ -13,7 +13,7 @@ Verify::Verify(QSqlDatabase db,loginPacket packet) : database(db)
     name = "Users_Information";
 }
 
-SysCodes Verify::Login()
+package::SysCodes Verify::Login()
 {
     QSqlQuery LoginQuery(database);
     LoginQuery.prepare("SELECT * FROM "+
@@ -45,15 +45,15 @@ SysCodes Verify::Login()
                 sendmessage(LoginQuery.lastError().text());
             }
 
-            return login_confrimed;
+            return package::login_confrimed;
         }
-        else return password_is_not_correct;
+        else return package::password_is_not_correct;
     }
-    else return username_not_found;
+    else return package::username_not_found;
 
 }
 
-SysCodes Verify::checkForSignIn()
+package::SysCodes Verify::checkForSignIn()
 {
     QSqlQuery LoginQuery(database);
     LoginQuery.prepare("SELECT * FROM "+
@@ -71,7 +71,7 @@ SysCodes Verify::checkForSignIn()
 
     if(LoginQuery.next())
     {
-        return s_username_is_repititive;
+        return package::s_username_is_repititive;
     }
     else
     {
@@ -85,8 +85,8 @@ SysCodes Verify::checkForSignIn()
             sendmessage("Failed to execute query:" + LoginQuery.lastError().text());
             exit(1);
         }
-        if(LoginQuery.next()) return s_email_is_repititive;
-        else return  s_send_apply_For_Link;
+        if(LoginQuery.next()) return package::s_email_is_repititive;
+        else return  package::s_send_apply_For_Link;
     }
 }
 

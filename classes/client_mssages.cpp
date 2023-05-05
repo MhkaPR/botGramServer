@@ -12,7 +12,7 @@ short Client_Mssages::MessageConfrime(QSqlDatabase Db, QString tableName)
     QSqlQuery queryCheckMessage(db);
 
     queryCheckMessage.prepare("SELECT Token FROM "+tableName+" WHERE Token = :t");
-    queryCheckMessage.bindValue(":t",MessageStruct.sender);
+    queryCheckMessage.bindValue(":t",MessageStruct.getSender());
     if(!queryCheckMessage.exec())
     {
         sendmessage(queryCheckMessage.lastError().text());

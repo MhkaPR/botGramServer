@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include "database.h"
-#include "Packages.h"
+#include "package.h"
+#include "loginpacket.h"
 #include <QMessageBox>
+#include "queriespacket.h"
 
 
 
@@ -13,8 +15,8 @@ class Verify : public DataBase
 public:
     Verify(QSqlDatabase db,loginPacket packet);
     bool IsLogin;
-    SysCodes Login();
-    SysCodes checkForSignIn();
+    package::SysCodes Login();
+    package::SysCodes checkForSignIn();
     bool addNewUser(QString Token);
     userInfo UserInformation();
 

@@ -18,13 +18,20 @@ DESTDIR = $$PWD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    classes/adduser_spacket.cpp \
     classes/authentication.cpp \
+    classes/checkverifysafepacket.cpp \
     classes/client_mssages.cpp \
+    classes/connectverify.cpp \
     classes/database.cpp \
+    classes/loginpacket.cpp \
     classes/package.cpp \
 #    classes/package.cpp \
+    classes/queriespacket.cpp \
+    classes/systemmessagepacket.cpp \
     classes/textmessage.cpp \
     classes/tokenbuilder.cpp \
+    classes/tokenpacket.cpp \
     classes/verify.cpp \
     main.cpp \
     server.cpp \
@@ -32,13 +39,20 @@ SOURCES += \
 
 HEADERS += \
     classes/Packages.h \
+    classes/adduser_spacket.h \
     classes/authentication.h \
+    classes/checkverifysafepacket.h \
     classes/client_mssages.h \
+    classes/connectverify.h \
     classes/database.h \
+    classes/loginpacket.h \
     classes/package.h \
 #    classes/package.h \
+    classes/queriespacket.h \
+    classes/systemmessagepacket.h \
     classes/textmessage.h \
     classes/tokenbuilder.h \
+    classes/tokenpacket.h \
     classes/verify.h \
     server.h \
 #    verify.h

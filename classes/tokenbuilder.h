@@ -6,6 +6,7 @@
 #include <QSqlDatabase>
 #include <QRegularExpression>
 #include <QRandomGenerator>
+#include "queriespacket.h"
 
 
 class TokenBuilder : DataBase

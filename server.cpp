@@ -1,7 +1,14 @@
 
 #include "server.h"
 #include "ui_server.h"
-#include "classes/Packages.h"
+#include "classes/package.h"
+
+#include "classes/textmessage.h"
+#include "classes/connectverify.h"
+#include "classes/loginpacket.h"
+#include "classes/systemmessagepacket.h"
+#include "classes/adduser_spacket.h"
+#include "classes/tokenpacket.h"
 #define PORT 9999
 #define MAX_LENGTH_DATA 1024
 server::server(QWidget *parent)
@@ -95,40 +102,40 @@ void server::PacketsHandle()
         short header;  in >> header;
 
 
+        package *p=nullptr;
+
+
+
         //check header
         switch (header) {
-        case CONNECT:
+        case package::CONNECT:
         {
-
-            ConnectPacket Conn;
-            in >> Conn.Token;
+            connectVerify Conn;
+            Conn.deserialize(buffer);
             if(Client_Mssages::ConnectConfrime(mydb,Conn.Token) == Client_Mssages::USER_FOUND_OK)
             {
                 Clients[clientSocket] = Conn.Token;
-
-                //                Clients_Username.append(Conn.Token);
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
             }
             break;
         }
-        case VERIFY:
+        case package::VERIFY:
         {
 
             loginPacket loginData;
-
-            in >>loginData.JsonInformation;
-            sendmessage(loginData.JsonInformation);
+            loginData.deserialize(buffer);
             Verify myVerify(mydb,loginData);
 
             if(myVerify.IsLogin)
             {
                 systemMessagePacket SysMsg;
-                SysMsg.msg=myVerify.Login();
+                SysMsg.setSysmsg(myVerify.Login());
+
                 QByteArray answerBuf;
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
 
-                out << SysMsg;
+               out << package::Packeting( SysMsg.getheader(),SysMsg.serialize());
 
                 clientSocket->write(answerBuf);
 
@@ -136,27 +143,29 @@ void server::PacketsHandle()
             else
             {
                 systemMessagePacket SysMsg;
-                SysMsg.msg = myVerify.checkForSignIn();
+                SysMsg.setSysmsg(myVerify.checkForSignIn());
 
                 QByteArray answerBuf;
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
 
-                out << SysMsg;
+                out << package::Packeting(SysMsg.getheader(),SysMsg.serialize());
 
                 clientSocket->write(answerBuf);
 
             }
             break;
         }
-        case SYSTEM:
+        case package::SYSTEM:
         {
             systemMessagePacket sysMsg;
             short msg;
             in >> msg;
-            sysMsg.msg = (SysCodes)msg;
-            switch (sysMsg.msg) {
-            case Send_VerifyCode:
+            sysMsg.setSysmsg(static_cast<package::SysCodes>(msg));
+
+
+            switch (sysMsg.getSysmsg()) {
+            case package::Send_VerifyCode:
             {
 
 
@@ -165,7 +174,11 @@ void server::PacketsHandle()
                 out.setVersion(QDataStream::Qt_4_0);
 
                 Authentication myAutho;
-                out << myAutho.getSafeVerify();
+
+
+                CheckVerifySafePacket safepackate = myAutho.getSafeVerify();
+
+                out << package::Packeting(safepackate.getheader(),safepackate.serialize());
 
                 clientSocket->write(answerBuf);
 
@@ -177,23 +190,28 @@ void server::PacketsHandle()
             }
             break;
         }
-        case ADDUSER_TO_USERS_DATABASE:
+        case package::ADDUSER_TO_USERS_DATABASE:
         {
             AddUser_SPacket user;
-            in >>user.data;
+
+            user.deserialize(buffer);
+
+
             //decode data...
 
 
             QByteArray answerBuf;
             QDataStream out(&answerBuf,QIODevice::WriteOnly);
             out.setVersion(QDataStream::Qt_4_0);
+
+
             TokenBuilder T(DB_Name,mydb);
             TokenPacket Clienttoken;
-            Clienttoken.Token = T.token();
-            out << Clienttoken;
+            Clienttoken.setToken(T.token());
+            out << package::Packeting(Clienttoken.getheader(),Clienttoken.serialize());
 
             loginPacket userL;
-            userL.JsonInformation = user.data;
+            userL.setJsonLoginData(user.getdata());
 
             Verify myVerify(mydb,userL);
             if(!myVerify.addNewUser(T.token()))
@@ -217,40 +235,35 @@ void server::PacketsHandle()
 
             break;
         }
-        case TEXTMESSAGE:
+        case package::TEXTMESSAGE:
         {
 
             TextMessage msg;
-            QString time;
-            short state;
-            in >> msg.sender;
-            in >> msg.Reciever;
-            in >> msg.Message;
-            in >> time;
-            in >> state;
-            msg.timeSend = msg.timeSend.fromString(time);
-            msg.stateMessage = static_cast<SEND_STATE>(state);
+
+            msg.deserialize(buffer);
+
+
             //sendmessage(msg.Message);
             Client_Mssages messageProc(msg);
 
             if(messageProc.MessageConfrime(mydb) == Client_Mssages::USER_FOUND_OK)
             {
                 //sendmessage(msg.Message);
-                ui->plainTextEdit->appendPlainText(msg.sender+" -> "+msg.Reciever+" in " + msg.timeSend.toString()+" :\n( "+msg.Message+" )");
-
-
+                ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
+                                                   " in " + msg.gettimeSend().toString()+
+                                                   " :\n( "+msg.getMessage()+" )");
 
                 QStringList values = Clients.values();
                 for (int i=0; i < Clients.count() ;i++) {
 
-                    if(values[i] == msg.Reciever)
+                    if(values[i] == msg.getReciever())
                     {
                         QByteArray bufMe;
                         QDataStream out(&bufMe,QIODevice::WriteOnly);
                         out.setVersion(QDataStream::Qt_4_0);
 
-                        out << msg;
-                      Clients.key(values[i])->write(bufMe);
+                        out << package::Packeting(msg.getheader(),msg.serialize());
+                        Clients.key(values[i])->write(bufMe);
                         break;
                     }
                 }
@@ -273,9 +286,6 @@ void server::PacketsHandle()
 
 
 }
-
-
-
 
 
 void server::ProgressOfClients()
@@ -314,7 +324,7 @@ void server::disConnectClient()
 {
 
     QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    ui->plainTextEdit->appendPlainText(Clients[clientSocket]+" Disconnect");
+    ui->plainTextEdit->appendPlainText(Clients[clientSocket]+" Disconnected------------------------------");
     Clients.remove(clientSocket);
 }
 

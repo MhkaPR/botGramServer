@@ -42,13 +42,13 @@ public:
     package();
     static QByteArray Packeting(HEADERS headerPacket, QByteArray bufferPacket);
     static HEADERS unPacketing(QByteArray& bufferPacket);
-
+    HEADERS getheader();
 
 protected:
-    HEADERS header;
 
-    virtual void serialize(QByteArray buffer) = 0;
-    virtual QByteArray deserialize() =0;
+    HEADERS header;
+    virtual void deserialize(QByteArray buffer) = 0;
+    virtual QByteArray serialize() =0;
 
 
 
