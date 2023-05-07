@@ -235,8 +235,26 @@ void server::PacketsHandle()
 
             break;
         }
-        case package::TEXTMESSAGE:
+        case package::ROOMS:
         {
+          Room *rooms=nullptr;
+
+          RoomPacket roomPackect;
+          roomPackect.deserialize(buffer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             TextMessage msg;
 
@@ -268,6 +286,25 @@ void server::PacketsHandle()
                     }
                 }
             }
+            /*
+
+                    class pvroom
+                    {
+
+
+
+
+                        token
+
+                        client1
+                        client2
+                       list messages
+
+
+
+
+                    }
+              */
 
 
             //        QByteArray buf;

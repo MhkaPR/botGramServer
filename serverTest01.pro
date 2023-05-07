@@ -21,13 +21,17 @@ SOURCES += \
     classes/adduser_spacket.cpp \
     classes/authentication.cpp \
     classes/checkverifysafepacket.cpp \
+    classes/client.cpp \
     classes/client_mssages.cpp \
     classes/connectverify.cpp \
     classes/database.cpp \
     classes/loginpacket.cpp \
     classes/package.cpp \
 #    classes/package.cpp \
+    classes/pvroom.cpp \
     classes/queriespacket.cpp \
+    classes/room.cpp \
+    classes/roompacket.cpp \
     classes/systemmessagepacket.cpp \
     classes/textmessage.cpp \
     classes/tokenbuilder.cpp \
@@ -42,13 +46,17 @@ HEADERS += \
     classes/adduser_spacket.h \
     classes/authentication.h \
     classes/checkverifysafepacket.h \
+    classes/client.h \
     classes/client_mssages.h \
     classes/connectverify.h \
     classes/database.h \
     classes/loginpacket.h \
     classes/package.h \
 #    classes/package.h \
+    classes/pvroom.h \
     classes/queriespacket.h \
+    classes/room.h \
+    classes/roompacket.h \
     classes/systemmessagepacket.h \
     classes/textmessage.h \
     classes/tokenbuilder.h \

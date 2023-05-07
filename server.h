@@ -27,6 +27,8 @@
 #include "classes/authentication.h"
 #include "classes/tokenbuilder.h"
 #include "classes/client_mssages.h"
+#include "classes/room.h"
+#include "classes/roompacket.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }

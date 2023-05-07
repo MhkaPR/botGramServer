@@ -18,6 +18,7 @@ public:
         ADDUSER_TO_USERS_DATABASE,
         TOKENUSER,
         TEXTMESSAGE,
+        ROOMS,
 
     };
     enum SEND_STATE : short
@@ -37,6 +38,10 @@ public:
         s_email_is_repititive,
         s_send_apply_For_Link,
 
+    };
+    enum RoomType :short
+    {
+        PV,CHANELL,GROUPE,BOT
     };
 
     package();
