@@ -253,6 +253,27 @@ void server::PacketsHandle()
             {
 
 
+
+                //sasions for send correctly messages
+
+                //add message in pv_1
+                messageProc.add_in_Room(msg.getReciever(),msg.getSender(),
+                                        msg.gettimeSend().toString(),msg.getMessage());
+                //update last update sender
+
+                messageProc.update_last_update(msg.getSender(),msg.getReciever()
+                                               ,msg.gettimeSend().toString());
+
+
+                // While for other clients
+
+
+
+                // check client is online
+                //check last Update isn't update
+                // write new messages
+                // update last update reciver
+
                 QStringList values = Clients.values();
 
                 for (int i=0; i < Clients.count() ;i++) {

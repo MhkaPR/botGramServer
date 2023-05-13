@@ -11,3 +11,4 @@ void DataBase::sendmessage(QString str)
     msg->setText(str);
     msg->exec();
 }
+

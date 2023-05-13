@@ -22,13 +22,17 @@ public:
     {
         USER_NOT_FOUND_WITH_THIS_TOKEN,
         USER_FOUND_OK,
-        DATABASE_ERROR
+        DATABASE_ERROR,
+        MESSAGE_SUCCESSFULLY_ADDED,
+        UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY
 
     };
     Client_Mssages(TextMessage message);
 
     short MessageConfrime(QSqlDatabase Db,QString tableName = "Users_Information");
     static short ConnectConfrime(QSqlDatabase Db,QString& Token_username,QString tableName = "Users_Information");
+    short add_in_Room(QString RoomName,QString sender,QString Date,QString message);
+    short update_last_update(QString username,QString RoomName, QString date);
 
 
 

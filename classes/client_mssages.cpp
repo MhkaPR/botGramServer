@@ -46,3 +46,56 @@ short Client_Mssages::ConnectConfrime(QSqlDatabase Db, QString& Token_username, 
     Token_username = queryCheckMessage.value("username").toString();
     return USER_FOUND_OK;
 }
+
+short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,QString message)
+{
+    QSqlQuery query_ADD_Message_in_Room(db);
+
+    query_ADD_Message_in_Room.prepare("INSERT INTO "+RoomName+
+                    " (name,message,date)"
+                    " VALUES (:n,:m,:d)");
+    query_ADD_Message_in_Room.bindValue(":n",sender);
+    query_ADD_Message_in_Room.bindValue(":m",message);
+    query_ADD_Message_in_Room.bindValue(":d",Date);
+    if(!query_ADD_Message_in_Room.exec())
+    {
+        QMessageBox *m= new QMessageBox();
+        m->setText(query_ADD_Message_in_Room.lastError().text());
+        m->exec();
+        delete m;
+
+        query_ADD_Message_in_Room.clear();
+        return DATABASE_ERROR;
+
+    }
+    return MESSAGE_SUCCESSFULLY_ADDED;
+}
+
+short Client_Mssages::update_last_update(QString username,QString RoomName, QString date)
+{
+
+
+    QString Info = username + ":"+date;
+
+    QSqlQuery query_update_last_update(db);
+
+    query_update_last_update.prepare("UPDATE "+
+                                     username+" SET lastMessage_Info = :data WHERE Rooms = :room");
+
+    query_update_last_update.bindValue(":data",Info);
+    query_update_last_update.bindValue(":room",RoomName);
+
+
+    if(!query_update_last_update.exec())
+    {
+        QMessageBox *m= new QMessageBox();
+        m->setText(query_update_last_update.lastError().text());
+        m->exec();
+        delete m;
+
+        query_update_last_update.clear();
+        return DATABASE_ERROR;
+    }
+
+    return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
+}

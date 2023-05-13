@@ -8,6 +8,7 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSqlQueryModel>
+
 //json
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -31,6 +32,8 @@ public:
 
     //connection to dataBase
     //root node must be :dataroot
+
+
 
     bool createDataBase(QString);
 
