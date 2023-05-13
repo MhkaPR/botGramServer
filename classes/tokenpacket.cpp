@@ -16,7 +16,7 @@ void TokenPacket::deserialize(QByteArray buffer)
 {
     QDataStream in(&buffer,QIODevice::ReadOnly);
     in.setVersion(QDataStream::Qt_4_0);
-    short headerAsshort;
+    qint64 headerAsshort;
     in >> headerAsshort >> Token;
     header = static_cast<HEADERS>(headerAsshort);
 

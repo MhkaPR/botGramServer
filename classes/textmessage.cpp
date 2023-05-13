@@ -11,9 +11,10 @@ void TextMessage::deserialize(QByteArray buffer)
 {
     QDataStream in(&buffer,QIODevice::ReadOnly);
     in.setVersion(QDataStream::Qt_4_0);
-    short headerAsshort,state;
+    qint64 headerAsshort;
+      short state;
     QString time;
-    in >> headerAsshort >> sender >>Reciever>> Message >> time >> state;
+    in >> headerAsshort >> sender  >>Reciever>> Message >> time >> state;
 
     stateMessage = static_cast<SEND_STATE>(state);
     header = static_cast<HEADERS>(headerAsshort);

@@ -14,7 +14,7 @@ void systemMessagePacket::deserialize(QByteArray buffer)
     QDataStream in(&buffer,QIODevice::ReadOnly);
     in.setVersion(QDataStream::Qt_4_0);
 
-    short headerMe;
+    qint64 headerMe;
     short Sys;
 
     in >> headerMe >> Sys;

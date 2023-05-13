@@ -9,3 +9,8 @@ void pvRoom::Recieve()
 {
 
 }
+void pvRoom::Send()
+{
+
+}
+

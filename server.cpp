@@ -235,25 +235,8 @@ void server::PacketsHandle()
 
             break;
         }
-        case package::ROOMS:
+        case package::TEXTMESSAGE:
         {
-          Room *rooms=nullptr;
-
-          RoomPacket roomPackect;
-          roomPackect.deserialize(buffer);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
             TextMessage msg;
@@ -266,12 +249,10 @@ void server::PacketsHandle()
 
             if(messageProc.MessageConfrime(mydb) == Client_Mssages::USER_FOUND_OK)
             {
-                //sendmessage(msg.Message);
-                ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
-                                                   " in " + msg.gettimeSend().toString()+
-                                                   " :\n( "+msg.getMessage()+" )");
+
 
                 QStringList values = Clients.values();
+
                 for (int i=0; i < Clients.count() ;i++) {
 
                     if(values[i] == msg.getReciever())
@@ -282,6 +263,11 @@ void server::PacketsHandle()
 
                         out << package::Packeting(msg.getheader(),msg.serialize());
                         Clients.key(values[i])->write(bufMe);
+                        qDebug() << bufMe;
+                        ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
+                                                           " in " + msg.gettimeSend().toString()+
+                                                           " :\n( "+msg.getMessage()+" )");
+
                         break;
                     }
                 }
