@@ -17,6 +17,8 @@ public:
 
     QString getToken();
     QString Token;
+    QJsonDocument doc;
+
 private:
 
 };

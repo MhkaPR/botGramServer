@@ -13,9 +13,12 @@ void connectVerify::deserialize(QByteArray buffer)
 
     qint64 headerMe;
 
-    in >> headerMe >> Token;
+
+    in >> headerMe >> Token ;
 
     header =static_cast<HEADERS>(headerMe);
+
+
 
 
 }
