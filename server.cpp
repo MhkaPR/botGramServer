@@ -116,6 +116,8 @@ void server::PacketsHandle()
             {
                 Clients[clientSocket] = Conn.Token;
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
+
+
             }
             break;
         }

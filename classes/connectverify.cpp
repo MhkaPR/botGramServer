@@ -13,14 +13,13 @@ void connectVerify::deserialize(QByteArray buffer)
 
     qint64 headerMe;
 
+    QString lastUpdatesTemp;
 
-    in >> headerMe >> Token ;
+    in >> headerMe >> Token >> lastUpdatesTemp;
 
     header =static_cast<HEADERS>(headerMe);
 
-
-
-
+    doc = QJsonDocument::fromJson(lastUpdatesTemp.toStdString().c_str());
 }
 
 QByteArray connectVerify::serialize()
