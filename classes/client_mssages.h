@@ -45,7 +45,7 @@ private:
     TextMessage MessageStruct;
 
     bool IsUpdateData(QString SenderName, QString RoomName,QString lastSenderUpdate);
-    QByteArray getupdates(QString lastSenderUpdate,TextMessage msg);
+    QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
 
 };
 

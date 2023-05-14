@@ -136,7 +136,7 @@ void server::PacketsHandle()
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
 
-               out << package::Packeting( SysMsg.getheader(),SysMsg.serialize());
+                out << package::Packeting( SysMsg.getheader(),SysMsg.serialize());
 
                 clientSocket->write(answerBuf);
 
@@ -253,24 +253,28 @@ void server::PacketsHandle()
 
 
 
+                QString senderUsername=Client_Mssages::getUsername(msg.getSender(),mydb);
+                msg.setSender(senderUsername);
                 //sasions for send correctly messages
 
                 //add message in pv_1
-                messageProc.add_in_Room(msg.getReciever(),Clients.key(clientSocket),
+                messageProc.add_in_Room(msg.getReciever(),senderUsername,
                                         msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage());
                 //update last update sender
 
-                messageProc.update_last_update(Clients.key(clientSocket),Clients.key(clientSocket),msg.getReciever()
+                messageProc.update_last_update(senderUsername,senderUsername,msg.getReciever()
                                                ,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
 
                 // While for other clients
-                QString lastUpdate = messageProc.get_LastUpdate(msg.getSender(),msg.getReciever());
+
+
+                QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),msg.getReciever());
                 messageProc.sendForRoomClients(Clients,lastUpdate,msg);
-                     // check client is online
-                    //check last Update isn't update
-                   // write new messages
-                  // update last update reciver
+                // check client is online
+                //check last Update isn't update
+                // write new messages
+                // update last update reciver
 
 
 
@@ -279,26 +283,26 @@ void server::PacketsHandle()
 
 
 
-//                QList<QString> values = Clients.keys();
+                //                QList<QString> values = Clients.keys();
 
-//                for (int i=0; i < Clients.count() ;i++) {
+                //                for (int i=0; i < Clients.count() ;i++) {
 
-//                    if(values[i] == msg.getReciever())
-//                    {
-//                        QByteArray bufMe;
-//                        QDataStream out(&bufMe,QIODevice::WriteOnly);
-//                        out.setVersion(QDataStream::Qt_4_0);
+                //                    if(values[i] == msg.getReciever())
+                //                    {
+                //                        QByteArray bufMe;
+                //                        QDataStream out(&bufMe,QIODevice::WriteOnly);
+                //                        out.setVersion(QDataStream::Qt_4_0);
 
-//                        out << package::Packeting(msg.getheader(),msg.serialize());
-//                        Clients.value(values[i])->write(bufMe);
-//                        qDebug() << bufMe;
-//                        ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
-//                                                           " in " + msg.gettimeSend().toString()+
-//                                                           " :\n( "+msg.getMessage()+" )");
+                //                        out << package::Packeting(msg.getheader(),msg.serialize());
+                //                        Clients.value(values[i])->write(bufMe);
+                //                        qDebug() << bufMe;
+                //                        ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
+                //                                                           " in " + msg.gettimeSend().toString()+
+                //                                                           " :\n( "+msg.getMessage()+" )");
 
-//                        break;
-//                    }
-//                }
+                //                        break;
+                //                    }
+                //                }
 
 
 
@@ -368,7 +372,7 @@ void server::ProgressOfClients()
 
 
 
-   //clients.append(clientConnection);
+    //clients.append(clientConnection);
     //Clients.insert(clientConnection,"");
 
     connect(clientConnection,&QAbstractSocket::readyRead,this,&server::PacketsHandle);

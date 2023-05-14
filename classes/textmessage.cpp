@@ -58,3 +58,8 @@ package::SEND_STATE TextMessage::getstateMessage()
 {
     return stateMessage;
 }
+
+void TextMessage::setSender(QString value)
+{
+    sender = value;
+}

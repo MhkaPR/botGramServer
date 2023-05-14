@@ -68,6 +68,7 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
         return DATABASE_ERROR;
 
     }
+    query_ADD_Message_in_Room.finish();
     return MESSAGE_SUCCESSFULLY_ADDED;
 }
 
@@ -82,7 +83,7 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
                                      username+" SET lastMessage_Info = :data , updateSender = :up WHERE Rooms = :room");
 
     query_update_last_update.bindValue(":data",date);
-     query_update_last_update.bindValue(":up",sender_update);
+    query_update_last_update.bindValue(":up",sender_update);
     query_update_last_update.bindValue(":room",RoomName);
 
 
@@ -96,7 +97,7 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
         query_update_last_update.clear();
         return DATABASE_ERROR;
     }
-
+    query_update_last_update.finish();
     return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
 }
 
@@ -128,25 +129,27 @@ void Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QStri
 
     while (query_SendRommClients.next()) {
 
-     QString recieverName = query_SendRommClients.value(msg.getReciever()).toString();
-    if(clients.contains(recieverName))
-    {
-        if(!IsUpdateData(recieverName,msg.getReciever(),lastupdate))
+        QString recieverName = query_SendRommClients.value(msg.getReciever()).toString();
+
+        if(clients.contains(recieverName))
         {
-            QByteArray buf = getupdates(lastupdate,msg);
-            clients[recieverName]->write(buf);
-            clients[recieverName]->waitForBytesWritten();
-            update_last_update(recieverName,msg.getSender(),msg.getReciever(),msg.gettimeSend().toString());
+            if(!IsUpdateData(recieverName,msg.getReciever(),lastupdate))
+            {
+                QByteArray buf = getupdates(get_LastUpdate(recieverName,msg.getReciever()),msg);
+                clients[recieverName]->write(buf);
+                clients[recieverName]->waitForBytesWritten();
+                update_last_update(recieverName,msg.getSender(),msg.getReciever(),msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+
+            }
 
         }
 
+
+
+
     }
 
-
-
-
-    }
-
+    query_SendRommClients.first();
     // return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
 
 }
@@ -181,14 +184,14 @@ QString Client_Mssages::get_LastUpdate(QString username, QString RoomName)
 {
     QSqlQuery query_getLastUpdate(db);
 
-    query_getLastUpdate.prepare("SELECT lastMessage_Info FROM "+username+" WHERE Rooms = :roomname");
+    query_getLastUpdate.prepare("SELECT * FROM "+username+" WHERE Rooms = :roomname");
 
     query_getLastUpdate.bindValue(":roomname",RoomName);
 
     if(!query_getLastUpdate.exec())
     {
         QMessageBox *m= new QMessageBox();
-        m->setText(query_getLastUpdate.lastError().text());
+        m->setText("get_lastUpdate: "+query_getLastUpdate.lastError().text());
         m->exec();
         delete m;
 
@@ -197,11 +200,13 @@ QString Client_Mssages::get_LastUpdate(QString username, QString RoomName)
 
     }
 
+
     if(query_getLastUpdate.next())
     {
         return  query_getLastUpdate.value("lastMessage_Info").toString();
     }
-
+    query_getLastUpdate.finish();
+    return "";
 
 }
 bool Client_Mssages::IsUpdateData(QString SenderName, QString RoomName,QString lastSenderUpdate)
@@ -227,30 +232,44 @@ bool Client_Mssages::IsUpdateData(QString SenderName, QString RoomName,QString l
 
     if(query_check_last_update.next())
     {
-       if(query_check_last_update.value("lastMessage_Info").isNull())
-       {
-           return  false;
-       }
-       else if(query_check_last_update.value("lastMessage_Info").toString() == lastSenderUpdate)
-       {
-           return true;
-       }
-       else
-       {
-           return false;
-       }
+        if(query_check_last_update.value("lastMessage_Info").isNull())
+        {
+            query_check_last_update.finish();
+            return  false;
+        }
+        else if(query_check_last_update.value("lastMessage_Info").toString() == lastSenderUpdate)
+        {
+            query_check_last_update.finish();
+            return true;
+        }
+        else
+        {
+            query_check_last_update.finish();
+            return false;
+        }
     }
+    query_check_last_update.finish();
     return false;
 }
 
-QByteArray Client_Mssages::getupdates( QString lastSenderUpdate, TextMessage msg)
+QByteArray Client_Mssages::getupdates( QString lastUserUpdate, TextMessage msg)
 {
-    QSqlQuery query_getUpdates(db);
 
+
+    QSqlQuery query_getUpdates(db);
+    if(lastUserUpdate == "")
+    {
+        qDebug( ) << "ah";
+        query_getUpdates.prepare("SELECT * FROM "+msg.getReciever()/*+" WHERE date >= :d "
+                                                                    "ORDER BY date DESC"*/);
+
+    }
+    else
     query_getUpdates.prepare("SELECT * FROM "+msg.getReciever()+" WHERE date > :d "
                                                                 "ORDER BY date DESC");
 
-    query_getUpdates.bindValue(":d",lastSenderUpdate);
+
+    query_getUpdates.bindValue(":d",lastUserUpdate);
 
 
     if(!query_getUpdates.exec())
@@ -266,15 +285,18 @@ QByteArray Client_Mssages::getupdates( QString lastSenderUpdate, TextMessage msg
     QJsonObject objs;
     while(query_getUpdates.next())
     {
+
         QJsonArray data;
         QString messageNew = query_getUpdates.value("message").toString();
+
         data.append(messageNew);
         QString timeNew = query_getUpdates.value("date").toString();
         data.append(timeNew);
         objs.insert(msg.getSender(),data);
+
     }
     QJsonDocument docMessages;
     docMessages.setObject(objs);
-
+    query_getUpdates.finish();
     return  docMessages.toJson();
 }

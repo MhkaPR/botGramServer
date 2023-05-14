@@ -19,6 +19,8 @@ public:
       QString getMessage();
        QDateTime gettimeSend();
        SEND_STATE getstateMessage();
+
+       void setSender(QString value);
 private:
     QString sender;
     QString Reciever ;
