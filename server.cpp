@@ -114,8 +114,8 @@ void server::PacketsHandle()
             Conn.deserialize(buffer);
             if(Client_Mssages::ConnectConfrime(mydb,Conn.Token) == Client_Mssages::USER_FOUND_OK)
             {
-                QString username =  Client_Mssages::getUsername(Conn.Token,mydb);
-                Clients[username] = clientSocket;
+
+                Clients[Conn.Token] = clientSocket;
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
             }
             break;
@@ -256,12 +256,12 @@ void server::PacketsHandle()
                 //sasions for send correctly messages
 
                 //add message in pv_1
-                messageProc.add_in_Room(msg.getReciever(),msg.getSender(),
+                messageProc.add_in_Room(msg.getReciever(),Clients.key(clientSocket),
                                         msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage());
                 //update last update sender
 
-                messageProc.update_last_update(msg.getSender(),msg.getReciever()
-                                               ,msg.gettimeSend().toString());
+                messageProc.update_last_update(Clients.key(clientSocket),Clients.key(clientSocket),msg.getReciever()
+                                               ,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
 
                 // While for other clients

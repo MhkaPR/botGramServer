@@ -71,25 +71,25 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
     return MESSAGE_SUCCESSFULLY_ADDED;
 }
 
-short Client_Mssages::update_last_update(QString username,QString RoomName, QString date)
+short Client_Mssages::update_last_update(QString username,QString sender_update,QString RoomName, QString date)
 {
 
 
-    QString Info = username + ":"+date;
 
     QSqlQuery query_update_last_update(db);
 
     query_update_last_update.prepare("UPDATE "+
-                                     username+" SET lastMessage_Info = :data WHERE Rooms = :room");
+                                     username+" SET lastMessage_Info = :data , updateSender = :up WHERE Rooms = :room");
 
-    query_update_last_update.bindValue(":data",Info);
+    query_update_last_update.bindValue(":data",date);
+     query_update_last_update.bindValue(":up",sender_update);
     query_update_last_update.bindValue(":room",RoomName);
 
 
     if(!query_update_last_update.exec())
     {
         QMessageBox *m= new QMessageBox();
-        m->setText(query_update_last_update.lastError().text());
+        m->setText("update_last_update: "+query_update_last_update.lastError().text());
         m->exec();
         delete m;
 
@@ -136,7 +136,7 @@ void Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QStri
             QByteArray buf = getupdates(lastupdate,msg);
             clients[recieverName]->write(buf);
             clients[recieverName]->waitForBytesWritten();
-            update_last_update(recieverName,msg.getReciever(),msg.gettimeSend().toString());
+            update_last_update(recieverName,msg.getSender(),msg.getReciever(),msg.gettimeSend().toString());
 
         }
 
