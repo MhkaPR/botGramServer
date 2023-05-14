@@ -49,7 +49,7 @@ QString TextMessage::getMessage()
     return Message;
 }
 
-QTime TextMessage::gettimeSend()
+QDateTime TextMessage::gettimeSend()
 {
     return timeSend;
 }

@@ -60,7 +60,7 @@ private:
     QList<QString> fortunes;
 
 
-    QMap<QTcpSocket*,QString> Clients;
+    QMap<QString,QTcpSocket*> Clients;
     QList<QTcpSocket*> clients;
     QList<QString> Clients_Username;
 

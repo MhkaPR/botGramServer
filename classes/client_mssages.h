@@ -14,6 +14,7 @@
 #include <QSqlQueryModel>
 #include "textmessage.h"
 #include "queriespacket.h"
+#include <QMap>
 
 class Client_Mssages : DataBase
 {
@@ -33,13 +34,18 @@ public:
     static short ConnectConfrime(QSqlDatabase Db,QString& Token_username,QString tableName = "Users_Information");
     short add_in_Room(QString RoomName,QString sender,QString Date,QString message);
     short update_last_update(QString username,QString RoomName, QString date);
-
+    QString get_LastUpdate(QString username,QString RoomName);
+    void sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QString lastupdate,TextMessage msg,QString tableName="Rooms");
+    static QString getUsername(QString Token,QSqlDatabase Db, QString tableName="Users_Information");
 
 
 private:
     QSqlDatabase db;
     QString TableName;
     TextMessage MessageStruct;
+
+    bool IsUpdateData(QString SenderName, QString RoomName,QString lastSenderUpdate);
+    QByteArray getupdates(QString lastSenderUpdate,TextMessage msg);
 
 };
 

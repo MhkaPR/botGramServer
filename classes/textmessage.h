@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "database.h"
-#include <QTime>
+#include <QDateTime>
 #include "package.h"
 
 
@@ -17,13 +17,13 @@ public:
     QString getSender();
      QString getReciever();
       QString getMessage();
-       QTime gettimeSend();
+       QDateTime gettimeSend();
        SEND_STATE getstateMessage();
 private:
     QString sender;
     QString Reciever ;
     QString Message;
-    QTime timeSend;
+    QDateTime timeSend;
     SEND_STATE stateMessage;
 };
 

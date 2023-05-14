@@ -114,10 +114,9 @@ void server::PacketsHandle()
             Conn.deserialize(buffer);
             if(Client_Mssages::ConnectConfrime(mydb,Conn.Token) == Client_Mssages::USER_FOUND_OK)
             {
-                Clients[clientSocket] = Conn.Token;
+                QString username =  Client_Mssages::getUsername(Conn.Token,mydb);
+                Clients[username] = clientSocket;
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
-
-
             }
             break;
         }
@@ -258,7 +257,7 @@ void server::PacketsHandle()
 
                 //add message in pv_1
                 messageProc.add_in_Room(msg.getReciever(),msg.getSender(),
-                                        msg.gettimeSend().toString(),msg.getMessage());
+                                        msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage());
                 //update last update sender
 
                 messageProc.update_last_update(msg.getSender(),msg.getReciever()
@@ -266,34 +265,47 @@ void server::PacketsHandle()
 
 
                 // While for other clients
+                QString lastUpdate = messageProc.get_LastUpdate(msg.getSender(),msg.getReciever());
+                messageProc.sendForRoomClients(Clients,lastUpdate,msg);
+                     // check client is online
+                    //check last Update isn't update
+                   // write new messages
+                  // update last update reciver
 
 
 
-                // check client is online
-                //check last Update isn't update
-                // write new messages
-                // update last update reciver
 
-                QStringList values = Clients.values();
 
-                for (int i=0; i < Clients.count() ;i++) {
 
-                    if(values[i] == msg.getReciever())
-                    {
-                        QByteArray bufMe;
-                        QDataStream out(&bufMe,QIODevice::WriteOnly);
-                        out.setVersion(QDataStream::Qt_4_0);
 
-                        out << package::Packeting(msg.getheader(),msg.serialize());
-                        Clients.key(values[i])->write(bufMe);
-                        qDebug() << bufMe;
-                        ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
-                                                           " in " + msg.gettimeSend().toString()+
-                                                           " :\n( "+msg.getMessage()+" )");
 
-                        break;
-                    }
-                }
+//                QList<QString> values = Clients.keys();
+
+//                for (int i=0; i < Clients.count() ;i++) {
+
+//                    if(values[i] == msg.getReciever())
+//                    {
+//                        QByteArray bufMe;
+//                        QDataStream out(&bufMe,QIODevice::WriteOnly);
+//                        out.setVersion(QDataStream::Qt_4_0);
+
+//                        out << package::Packeting(msg.getheader(),msg.serialize());
+//                        Clients.value(values[i])->write(bufMe);
+//                        qDebug() << bufMe;
+//                        ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
+//                                                           " in " + msg.gettimeSend().toString()+
+//                                                           " :\n( "+msg.getMessage()+" )");
+
+//                        break;
+//                    }
+//                }
+
+
+
+
+
+
+
             }
             /*
 
@@ -356,7 +368,7 @@ void server::ProgressOfClients()
 
 
 
-    clients.append(clientConnection);
+   //clients.append(clientConnection);
     //Clients.insert(clientConnection,"");
 
     connect(clientConnection,&QAbstractSocket::readyRead,this,&server::PacketsHandle);
@@ -370,7 +382,7 @@ void server::disConnectClient()
 {
 
     QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    ui->plainTextEdit->appendPlainText(Clients[clientSocket]+" Disconnected------------------------------");
-    Clients.remove(clientSocket);
+    ui->plainTextEdit->appendPlainText(Clients.key(clientSocket)+" Disconnected------------------------------");
+    Clients.remove(Clients.key(clientSocket));
 }
 
