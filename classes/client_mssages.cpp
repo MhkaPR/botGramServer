@@ -49,6 +49,79 @@ short Client_Mssages::ConnectConfrime(QSqlDatabase Db, QString& Token_username, 
 
 short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,QString message)
 {
+
+
+    //check room exist
+    if(!IsColumnInTable(RoomName))
+    {
+        // add a culomn in Rooms table
+        short err = add_columnInTable(RoomName);
+        if(err == DataBase::COLUMN_SUCCESSFULLY_ADDED)
+        {
+            // add at least of members in in that culomn
+            QStringList users = RoomName.split("_");
+            err = addDataInColumn(users,RoomName);
+            if(err== Client_Mssages::ADD_DATA_SUCCESSFULLY)
+            {
+
+                // create a table from that culomn that it's name is ex: A
+                QMap<QString,QString> data;
+                data.insert("name","text");
+                data.insert("message","text");
+                data.insert("date","text");
+                err = create_Table(RoomName,data);
+                if(err == DataBase::ADDED_TABLE)
+                {
+                    // add a row in tables of members that are in the Room table
+                    // write in the cell of Rooms culomn of member's table : A -> name of new Room
+                    err = addData_inPersonalTable(sender,RoomName);
+                    if(err == Client_Mssages::ADD_DATA_SUCCESSFULLY)
+                    {
+                        foreach (QString var, users)
+                        {
+                            if(var != sender)
+                                err = addData_inPersonalTable(var,RoomName);
+                            if(err != Client_Mssages::ADD_DATA_SUCCESSFULLY)
+                            {
+                                //handle error
+                                exit(1);
+                            }
+                        }
+
+                    }else {
+                        //hanlde error
+                        exit(1);
+                    }
+
+
+                }
+                else {
+                    //handle errors
+                    exit(1);
+                }
+
+
+            }
+            else
+            {
+                //handle errors
+                exit(1);
+            }
+
+
+
+        }
+        else
+        {
+            //handle error
+            exit(1);
+        }
+    }
+
+
+
+
+
     QSqlQuery query_ADD_Message_in_Room(db);
 
     query_ADD_Message_in_Room.prepare("INSERT INTO "+RoomName+
@@ -261,12 +334,12 @@ QByteArray Client_Mssages::getupdates( QString lastUserUpdate, TextMessage msg)
     {
         qDebug( ) << "ah";
         query_getUpdates.prepare("SELECT * FROM "+msg.getReciever()/*+" WHERE date >= :d "
-                                                                    "ORDER BY date DESC"*/);
+                                                                                                                                                                        "ORDER BY date DESC"*/);
 
     }
     else
-    query_getUpdates.prepare("SELECT * FROM "+msg.getReciever()+" WHERE date > :d "
-                                                                "ORDER BY date DESC");
+        query_getUpdates.prepare("SELECT * FROM "+msg.getReciever()+" WHERE date > :d "
+                                                                    "ORDER BY date DESC");
 
 
     query_getUpdates.bindValue(":d",lastUserUpdate);
@@ -299,4 +372,66 @@ QByteArray Client_Mssages::getupdates( QString lastUserUpdate, TextMessage msg)
     docMessages.setObject(objs);
     query_getUpdates.finish();
     return  docMessages.toJson();
+}
+
+template<class T>
+short Client_Mssages::addDataInColumn(T data, QString ColName, QString tableName)
+{
+
+
+    QSqlQuery query_addDataInColumn(db);
+    unsigned long long int i=1;
+    foreach(QString x,data){
+
+
+        query_addDataInColumn.prepare(
+                    "UPDATE "+tableName+" SET "+ColName+" = :x WHERE ID = :i;"
+                    );
+        query_addDataInColumn.bindValue(":x",x);
+        query_addDataInColumn.bindValue(":i",i);
+        if(!query_addDataInColumn.exec())
+        {
+            sendmessage("query_addDataInColumn:"+query_addDataInColumn.lastError().text());
+            query_addDataInColumn.clear();
+            return DATABASE_ERROR;
+
+        }
+        i++;
+
+    }
+
+    query_addDataInColumn.finish();
+    return ADD_DATA_SUCCESSFULLY;
+
+}
+
+
+short Client_Mssages::addData_inPersonalTable(QString username,QString RoomName)
+{
+    QSqlQuery query_addData_inPersonalTable(db);
+
+    query_addData_inPersonalTable.prepare(
+
+                "INSERT INTO "+username+
+                " (Rooms,lastMessage_Info,updateSender) "
+                "VALUES (:r,NULL,NULL)"
+                );
+
+    query_addData_inPersonalTable.bindValue(":r",RoomName);
+
+    if(!query_addData_inPersonalTable.exec())
+    {
+        QMessageBox *m= new QMessageBox();
+        m->setText("addData_inPersonalTable : "+query_addData_inPersonalTable.lastError().text());
+        m->exec();
+        delete m;
+
+        //query_addData_inPersonalTable.clear();
+        query_addData_inPersonalTable.finish();
+        return Client_Mssages::DATABASE_ERROR;
+    }
+
+    query_addData_inPersonalTable.finish();
+    return ADD_DATA_SUCCESSFULLY;
+
 }

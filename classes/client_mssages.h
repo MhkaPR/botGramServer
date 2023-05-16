@@ -12,6 +12,8 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSqlQueryModel>
+
+
 #include "textmessage.h"
 #include "queriespacket.h"
 #include <QMap>
@@ -25,7 +27,8 @@ public:
         USER_FOUND_OK,
         DATABASE_ERROR,
         MESSAGE_SUCCESSFULLY_ADDED,
-        UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY
+        UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY,
+        ADD_DATA_SUCCESSFULLY
 
     };
     Client_Mssages(TextMessage message);
@@ -38,9 +41,16 @@ public:
     void sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QString lastupdate,TextMessage msg,QString tableName="Rooms");
     static QString getUsername(QString Token,QSqlDatabase Db, QString tableName="Users_Information");
 
+    template<class T>
+    short addDataInColumn(T data,QString ColName,QString tableName = "Rooms");
+
+
+    short addData_inPersonalTable(QString username,QString RoomName);
+
+
 
 private:
-    QSqlDatabase db;
+
     QString TableName;
     TextMessage MessageStruct;
 

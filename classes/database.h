@@ -25,6 +25,18 @@ struct userInfo
 class DataBase
 {
 public:
+    enum Errors
+    {
+        USER_NOT_FOUND_WITH_THIS_TOKEN,
+        USER_FOUND_OK,
+        DATABASE_ERROR,
+        MESSAGE_SUCCESSFULLY_ADDED,
+        UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY,
+        COLUMN_SUCCESSFULLY_ADDED,
+        ADD_DATA_SUCCESSFULLY,
+        ADDED_TABLE
+
+    };
     DataBase();
 
     int Toint(QString);
@@ -36,10 +48,16 @@ public:
 
 
     bool createDataBase(QString);
+    bool IsColumnInTable(QString Colname, QString tableName = "Rooms");
+    short add_columnInTable(QString ColName , QString tableName = "Rooms");
+
+    short create_Table(QString tableName,const QMap<QString,QString> ColInfo);
+
 
     bool save_modifies();
 protected:
     QString name;
+    QSqlDatabase db;
 
 
 };
