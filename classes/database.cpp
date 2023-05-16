@@ -10,17 +10,28 @@ void DataBase::sendmessage(QString str)
     QMessageBox *msg = new QMessageBox;
     msg->setText(str);
     msg->exec();
+    delete msg;
 }
 
 bool DataBase::IsColumnInTable(QString ColName, QString tableName)
 {
+
+
+    QStringList splitedData = ColName.split("_");
+
+    if(splitedData[0]== "pv")
+    {
+    splitedData.swapItemsAt(1,2);
+    QString swaped = splitedData.join("_");
+
     QSqlQuery query_IsCulomnInTable(db);
 
     query_IsCulomnInTable.prepare(
-                "SELECT COUNT(*) FROM pragma_table_info(:t) WHERE name = :colName ;"
+                "SELECT COUNT(*) FROM pragma_table_info(:t) WHERE name = :colName OR name = :swaped;"
                 );
     query_IsCulomnInTable.bindValue(":t",tableName);
     query_IsCulomnInTable.bindValue(":colName",ColName);
+    query_IsCulomnInTable.bindValue(":swaped",swaped);
     if(!query_IsCulomnInTable.exec())
     {
         sendmessage("IsColumnInTable: "+query_IsCulomnInTable.lastError().text());
@@ -30,8 +41,31 @@ bool DataBase::IsColumnInTable(QString ColName, QString tableName)
     }
     query_IsCulomnInTable.first();
     bool ans = query_IsCulomnInTable.value(0).toBool();
+    if(!ans)
     query_IsCulomnInTable.finish();
     return ans;
+    }
+    else
+    {
+        QSqlQuery query_IsCulomnInTable(db);
+
+        query_IsCulomnInTable.prepare(
+                    "SELECT COUNT(*) FROM pragma_table_info(:t) WHERE name = :colName ;"
+                    );
+        query_IsCulomnInTable.bindValue(":t",tableName);
+        query_IsCulomnInTable.bindValue(":colName",ColName);
+        if(!query_IsCulomnInTable.exec())
+        {
+            sendmessage("IsColumnInTable: "+query_IsCulomnInTable.lastError().text());
+            query_IsCulomnInTable.clear();
+            exit(1);
+
+        }
+        query_IsCulomnInTable.first();
+        bool ans = query_IsCulomnInTable.value(0).toBool();
+        query_IsCulomnInTable.finish();
+        return ans;
+    }
 
 }
 

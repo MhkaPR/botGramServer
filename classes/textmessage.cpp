@@ -63,3 +63,8 @@ void TextMessage::setSender(QString value)
 {
     sender = value;
 }
+
+void TextMessage::setReceiver(QString value)
+{
+    Reciever = value;
+}

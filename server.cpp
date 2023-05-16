@@ -9,6 +9,8 @@
 #include "classes/systemmessagepacket.h"
 #include "classes/adduser_spacket.h"
 #include "classes/tokenpacket.h"
+
+
 #define PORT 9999
 #define MAX_LENGTH_DATA 1024
 server::server(QWidget *parent)
@@ -239,7 +241,6 @@ void server::PacketsHandle()
         case package::TEXTMESSAGE:
         {
 
-
             TextMessage msg;
 
             msg.deserialize(buffer);
@@ -261,13 +262,12 @@ void server::PacketsHandle()
                 messageProc.add_in_Room(msg.getReciever(),senderUsername,
                                         msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage());
                 //update last update sender
-
-                messageProc.update_last_update(senderUsername,senderUsername,msg.getReciever()
+                QString RoomName = msg.getReciever();
+                messageProc.update_last_update(senderUsername,senderUsername,&RoomName
                                                ,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
-
+                msg.setReceiver(RoomName);
                 // While for other clients
-
 
                 QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),msg.getReciever());
                 messageProc.sendForRoomClients(Clients,lastUpdate,msg);
@@ -275,8 +275,6 @@ void server::PacketsHandle()
                 //check last Update isn't update
                 // write new messages
                 // update last update reciver
-
-
 
 
 

@@ -21,6 +21,7 @@ public:
        SEND_STATE getstateMessage();
 
        void setSender(QString value);
+        void setReceiver(QString value);
 private:
     QString sender;
     QString Reciever ;

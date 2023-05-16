@@ -36,7 +36,7 @@ public:
     short MessageConfrime(QSqlDatabase Db,QString tableName = "Users_Information");
     static short ConnectConfrime(QSqlDatabase Db,QString& Token_username,QString tableName = "Users_Information");
     short add_in_Room(QString RoomName,QString sender,QString Date,QString message);
-    short update_last_update(QString username,QString sender_update,QString RoomName, QString date);
+    short update_last_update(QString username,QString sender_update,QString* RoomName, QString date);
     QString get_LastUpdate(QString username,QString RoomName);
     void sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QString lastupdate,TextMessage msg,QString tableName="Rooms");
     static QString getUsername(QString Token,QSqlDatabase Db, QString tableName="Users_Information");
