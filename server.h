@@ -29,6 +29,7 @@
 #include "classes/client_mssages.h"
 #include "classes/room.h"
 #include "classes/roompacket.h"
+#include "classes/updateclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }

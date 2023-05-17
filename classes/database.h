@@ -53,7 +53,7 @@ public:
 
     short create_Table(QString tableName,const QMap<QString,QString> ColInfo);
 
-
+    void setDataBase(QSqlDatabase Db);
     bool save_modifies();
 protected:
     QString name;

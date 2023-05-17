@@ -42,6 +42,7 @@ public:
     short update_last_update(QString username,QString sender_update,QString RoomName, QString date);
     QString get_LastUpdate(QString username,QString RoomName);
     QStringList sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QString lastupdate,TextMessage msg,QString tableName="Rooms");
+     short receiveUpdates(QMap<QString,QTcpSocket*> clients,QSqlDatabase Mydb,QString receiver,QString RoomName);
     static QString getUsername(QString Token,QSqlDatabase Db, QString tableName="Users_Information");
 
     template<class T>

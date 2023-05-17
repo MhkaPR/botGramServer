@@ -332,6 +332,89 @@ QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& client
 
 }
 
+short Client_Mssages::receiveUpdates(QMap<QString,QTcpSocket*> clients,QSqlDatabase Mydb, QString receiver, QString RoomName)
+{
+    QSqlQuery query_SendRommClients(Mydb);
+
+
+
+//    query_SendRommClients.prepare("SELECT "+
+//                                  RoomName+" FROM Rooms WHERE "+RoomName+" = :Recv");
+
+//    query_SendRommClients.bindValue(":Recv",receiver);
+
+//    if(!query_SendRommClients.exec())
+//    {
+//        QStringList roomData = RoomName.split("_");
+//        if(roomData[0] == "pv")
+//        {
+
+//            roomData.swapItemsAt(1,2);
+
+//            QString tempRoom = roomData.join("_");
+
+//            query_SendRommClients.clear();
+
+//            query_SendRommClients.prepare("SELECT "+
+//                                          tempRoom+" FROM Rooms WHERE "+tempRoom+" = :Recv");
+
+//            query_SendRommClients.bindValue(":Recv",receiver);
+
+//            if(!query_SendRommClients.exec())
+//            {
+//                QMessageBox *m= new QMessageBox();
+//                m->setText("sendForRoomClients  -> swaped : "+query_SendRommClients.lastError().text());
+//                m->exec();
+//                delete m;
+
+//                query_SendRommClients.clear();
+//            }
+
+//        }
+//        else
+//        {
+//            QMessageBox *m= new QMessageBox();
+//            m->setText("sendForRoomClients: "+query_SendRommClients.lastError().text());
+//            m->exec();
+//            delete m;
+
+//            query_SendRommClients.clear();
+//            //return DATABASE_ERROR;
+//        }
+//    }
+
+
+
+
+
+
+
+
+   QString lastUpdate = get_LastUpdate(receiver,RoomName);
+            if(!IsUpdateData(receiver,RoomName,lastUpdate))
+            {
+                TextMessage msg;
+                msg.setReceiver(RoomName);
+                msg.setSender("");
+                QByteArray buf = getupdates(lastUpdate,msg);
+                clients[receiver]->write(buf);
+                if( clients[receiver]->waitForBytesWritten())
+                update_last_update(receiver,receiver,RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+
+
+            }
+
+
+
+
+    query_SendRommClients.finish();
+
+
+    // return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
+
+
+}
+
 QString Client_Mssages::getUsername(QString Token,QSqlDatabase Db , QString tableName)
 {
 

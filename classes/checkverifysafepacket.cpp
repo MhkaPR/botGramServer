@@ -13,7 +13,7 @@ void CheckVerifySafePacket::deserialize(QByteArray buffer)
 
     qint64 headerMe;
 
-    in >> headerMe >> Link << Answer;
+    in >> headerMe >> Link >> Answer;
 
     header =static_cast<HEADERS>(headerMe);
 }

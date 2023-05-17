@@ -118,18 +118,36 @@ void server::PacketsHandle()
             {
                 Clients[Conn.Token] = clientSocket;
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
+
             }
             else
             {
 
-                  clientSocket->disconnectFromHost();
+                clientSocket->disconnectFromHost();
 
-                  if(clientSocket->state() == QAbstractSocket::UnconnectedState
-                          || clientSocket->waitForDisconnected(5000));
+                if(clientSocket->state() == QAbstractSocket::UnconnectedState
+                        || clientSocket->waitForDisconnected(5000));
 
 
 
             }
+            break;
+        }
+        case package::UPDATE_CLIENT:
+        {
+            updateClient updating;
+            updating.deserialize(buffer);
+
+
+            QJsonDocument doc = updating.getDocJson();
+            QJsonArray RoomArrays = doc.array();
+
+            foreach(QJsonValue Room , RoomArrays)
+            {
+
+            }
+
+
             break;
         }
         case package::VERIFY:
@@ -283,10 +301,10 @@ void server::PacketsHandle()
                 // While for other clients
 
                 QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),msg.getReciever());
-               QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,msg);
-               foreach (QString log, logs) {
-                   ui->plainTextEdit->appendPlainText(log);
-               }
+                QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,msg);
+                foreach (QString log, logs) {
+                    ui->plainTextEdit->appendPlainText(log);
+                }
                 // check client is online
                 //check last Update isn't update
                 // write new messages
@@ -350,6 +368,7 @@ void server::PacketsHandle()
 
             break;
         }
+
         default:break;
         }
 
