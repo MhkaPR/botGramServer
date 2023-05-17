@@ -116,9 +116,19 @@ void server::PacketsHandle()
             Conn.deserialize(buffer);
             if(Client_Mssages::ConnectConfrime(mydb,Conn.Token) == Client_Mssages::USER_FOUND_OK)
             {
-
                 Clients[Conn.Token] = clientSocket;
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
+            }
+            else
+            {
+
+                  clientSocket->disconnectFromHost();
+
+                  if(clientSocket->state() == QAbstractSocket::UnconnectedState
+                          || clientSocket->waitForDisconnected(5000));
+
+
+
             }
             break;
         }
@@ -371,6 +381,8 @@ void server::ProgressOfClients()
 
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
 
+    ui->plainTextEdit->appendPlainText(QString::number(clientConnection->socketDescriptor()));
+
 
 
     //clients.append(clientConnection);
@@ -387,7 +399,7 @@ void server::disConnectClient()
 {
 
     QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    ui->plainTextEdit->appendPlainText(Clients.key(clientSocket)+" Disconnected------------------------------");
+    ui->plainTextEdit->appendPlainText(Clients.key(clientSocket)+"("+QString::number(clientSocket->socketDescriptor())+") Disconnected------------------------------");
     Clients.remove(Clients.key(clientSocket));
 }
 
