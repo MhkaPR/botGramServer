@@ -47,23 +47,23 @@ short Client_Mssages::ConnectConfrime(QSqlDatabase Db, QString& Token_username, 
     return USER_FOUND_OK;
 }
 
-short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,QString message)
+short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,QString message)
 {
 
-    QStringList RoomData = RoomName.split("_");
+    QStringList RoomData = RoomName->split("_");
 
     //check room exist.
-    if(!IsColumnInTable(RoomName))
+    if(!IsColumnInTable(*RoomName))
     {
         // add a culomn in Rooms table
-        short err = add_columnInTable(RoomName);
+        short err = add_columnInTable(*RoomName);
         if(err == DataBase::COLUMN_SUCCESSFULLY_ADDED)
         {
             // add at least of members in in that culomn
 
 
 
-            err = addDataInColumn(RoomData,RoomName);
+            err = addDataInColumn(RoomData,*RoomName);
             if(err== Client_Mssages::ADD_DATA_SUCCESSFULLY)
             {
 
@@ -72,12 +72,12 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
                 data.insert("name","text");
                 data.insert("message","text");
                 data.insert("date","text");
-                err = create_Table(RoomName,data);
+                err = create_Table(*RoomName,data);
                 if(err == DataBase::ADDED_TABLE)
                 {
                     // add a row in tables of members that are in the Room table
                     // write in the cell of Rooms culomn of member's table : A -> name of new Room
-                    err = addData_inPersonalTable(sender,RoomName);
+                    err = addData_inPersonalTable(sender,*RoomName);
                     if(err == Client_Mssages::ADD_DATA_SUCCESSFULLY)
                     {
                         QStringList users = RoomData;
@@ -87,7 +87,7 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
                             foreach (QString var, users)
                             {
                                 if(var != sender)
-                                    err = addData_inPersonalTable(var,RoomName);
+                                    err = addData_inPersonalTable(var,*RoomName);
                                 if(err != Client_Mssages::ADD_DATA_SUCCESSFULLY)
                                 {
                                     //handle error
@@ -132,7 +132,7 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
 
     QSqlQuery query_ADD_Message_in_Room(db);
 
-    query_ADD_Message_in_Room.prepare("INSERT INTO "+RoomName+
+    query_ADD_Message_in_Room.prepare("INSERT INTO "+(*RoomName)+
                                       " (name,message,date)"
                                       " VALUES (:n,:m,:d)");
     query_ADD_Message_in_Room.bindValue(":n",sender);
@@ -143,11 +143,12 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
         if(RoomData[0]=="pv")
         {
             RoomData.swapItemsAt(1,2);
-            RoomName = RoomData.join("_");
+
+            *RoomName = RoomData.join("_");
 
 
             query_ADD_Message_in_Room.clear();
-            query_ADD_Message_in_Room.prepare("INSERT INTO "+RoomName+
+            query_ADD_Message_in_Room.prepare("INSERT INTO "+(*RoomName)+
                                               " (name,message,date)"
                                               " VALUES (:n,:m,:d)");
             query_ADD_Message_in_Room.bindValue(":n",sender);
@@ -183,7 +184,7 @@ short Client_Mssages::add_in_Room(QString RoomName,QString sender,QString Date,Q
     return MESSAGE_SUCCESSFULLY_ADDED;
 }
 
-short Client_Mssages::update_last_update(QString username,QString sender_update,QString* RoomName, QString date)
+short Client_Mssages::update_last_update(QString username,QString sender_update,QString RoomName, QString date)
 {
 
 
@@ -194,7 +195,7 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
 
     query_update_last_update.bindValue(":data",date);
     query_update_last_update.bindValue(":up",sender_update);
-    query_update_last_update.bindValue(":room",*RoomName);
+    query_update_last_update.bindValue(":room",RoomName);
 
 
     if(!query_update_last_update.exec())
@@ -207,38 +208,38 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
         query_update_last_update.clear();
         return DATABASE_ERROR;
     }
-    if(!query_update_last_update.next())
-    {
-        QStringList splitedRoom = RoomName->split("_");
+//    if(!query_update_last_update.next())
+//    {
+//        QStringList splitedRoom = RoomName.split("_");
 
-        if(splitedRoom[0]== "pv")
-        {
-            splitedRoom.swapItemsAt(1,2);
-            QString tempRoom = splitedRoom.join("_");
-            query_update_last_update.clear();
+//        if(splitedRoom[0]== "pv")
+//        {
+//            splitedRoom.swapItemsAt(1,2);
+//            QString tempRoom = splitedRoom.join("_");
+//            query_update_last_update.clear();
 
-            query_update_last_update.prepare("UPDATE "+
-                                             username+" SET lastMessage_Info = :data , updateSender = :up WHERE Rooms = :room");
+//            query_update_last_update.prepare("UPDATE "+
+//                                             username+" SET lastMessage_Info = :data , updateSender = :up WHERE Rooms = :room");
 
-            query_update_last_update.bindValue(":data",date);
-            query_update_last_update.bindValue(":up",sender_update);
-            query_update_last_update.bindValue(":room",tempRoom);
+//            query_update_last_update.bindValue(":data",date);
+//            query_update_last_update.bindValue(":up",sender_update);
+//            query_update_last_update.bindValue(":room",tempRoom);
 
-            if(!query_update_last_update.exec())
-            {
-                QMessageBox *m= new QMessageBox();
-                m->setText("update_last_update: "+query_update_last_update.lastError().text());
-                m->exec();
-                delete m;
+//            if(!query_update_last_update.exec())
+//            {
+//                QMessageBox *m= new QMessageBox();
+//                m->setText("update_last_update: "+query_update_last_update.lastError().text());
+//                m->exec();
+//                delete m;
 
-                query_update_last_update.clear();
-                return DATABASE_ERROR;
-            }
-            //swap names
-            *RoomName=tempRoom;
-        }
+//                query_update_last_update.clear();
+//                return DATABASE_ERROR;
+//            }
+//            //swap names
 
-    }
+//        }
+
+//    }
     query_update_last_update.finish();
 
     return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
@@ -314,7 +315,7 @@ void Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QStri
 
                 clients[recieverName]->waitForBytesWritten();
 
-                update_last_update(recieverName,msg.getSender(),&RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+                update_last_update(recieverName,msg.getSender(),RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
             }
 

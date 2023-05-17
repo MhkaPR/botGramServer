@@ -252,21 +252,24 @@ void server::PacketsHandle()
             if(messageProc.MessageConfrime(mydb) == Client_Mssages::USER_FOUND_OK)
             {
 
-
+                QString RoomName =msg.getReciever();
 
                 QString senderUsername=Client_Mssages::getUsername(msg.getSender(),mydb);
                 msg.setSender(senderUsername);
                 //sasions for send correctly messages
 
                 //add message in pv_1
-                messageProc.add_in_Room(msg.getReciever(),senderUsername,
+
+                messageProc.add_in_Room(&RoomName,senderUsername,
                                         msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage());
-                //update last update sender
-                QString RoomName = msg.getReciever();
-                messageProc.update_last_update(senderUsername,senderUsername,&RoomName
-                                               ,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
                 msg.setReceiver(RoomName);
+                //update last update sender
+
+                messageProc.update_last_update(senderUsername,senderUsername,RoomName
+                                               ,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+
+
                 // While for other clients
 
                 QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),msg.getReciever());
