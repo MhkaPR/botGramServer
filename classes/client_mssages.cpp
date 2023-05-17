@@ -247,7 +247,7 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
 
 
 
-void Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QString lastupdate,TextMessage msg,QString tableName)
+QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QString lastupdate,TextMessage msg,QString tableName)
 {
 
 
@@ -302,6 +302,8 @@ void Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QStri
 
 
  QString RoomName = msg.getReciever();
+
+ QStringList log;
     while (query_SendRommClients.next()) {
 
         QString recieverName = query_SendRommClients.value(msg.getReciever()).toString();
@@ -312,17 +314,20 @@ void Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& clients,QStri
             {
                 QByteArray buf = getupdates(get_LastUpdate(recieverName,msg.getReciever()),msg);
                 clients[recieverName]->write(buf);
-
-                clients[recieverName]->waitForBytesWritten();
-
+                if( clients[recieverName]->waitForBytesWritten())
                 update_last_update(recieverName,msg.getSender(),RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+                QString temp = msg.getSender() + " -> " + recieverName+" in "+msg.gettimeSend().toString("yyyy.MM.dd / hh:mm:ss")+" : \n( "
+                        +msg.getMessage()+" )";
+                log.append(temp);
 
             }
 
         }
     }
 
-    query_SendRommClients.first();
+    query_SendRommClients.finish();
+
+    return log;
     // return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
 
 }

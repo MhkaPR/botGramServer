@@ -273,14 +273,14 @@ void server::PacketsHandle()
                 // While for other clients
 
                 QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),msg.getReciever());
-                messageProc.sendForRoomClients(Clients,lastUpdate,msg);
+               QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,msg);
+               foreach (QString log, logs) {
+                   ui->plainTextEdit->appendPlainText(log);
+               }
                 // check client is online
                 //check last Update isn't update
                 // write new messages
                 // update last update reciver
-
-
-
 
 
 
