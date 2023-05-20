@@ -29,7 +29,7 @@ QByteArray updateClient::serialize()
 
 updateClient::updateClient()
 {
-
+header = UPDATE_CLIENT;
 }
 
 QJsonDocument updateClient::getDocJson()

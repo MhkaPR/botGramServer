@@ -28,7 +28,8 @@ public:
         DATABASE_ERROR,
         MESSAGE_SUCCESSFULLY_ADDED,
         UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY,
-        ADD_DATA_SUCCESSFULLY
+        ADD_DATA_SUCCESSFULLY,
+        MESSAGE_SUCCESSFULLY_SENDED,
 
     };
 
@@ -59,8 +60,8 @@ private:
     TextMessage MessageStruct;
 
     bool IsUpdateData(QString SenderName, QString RoomName,QString lastSenderUpdate);
-    QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
 
+    QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
 };
 
 

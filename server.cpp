@@ -34,14 +34,23 @@ server::server(QWidget *parent)
         close();
         return;
     }
+
+
     QString ipAddress;
     const QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
     // use the first non-localhost IPv4 address
     for (const QHostAddress &entry : ipAddressesList) {
+//        ipAddress = entry.toString();
+//        ui->plainTextEdit->appendPlainText(tr("The server is running on\n\nIP: %1\nport: %2\n\n")
+//                         .arg(ipAddress).arg(tcpServer->serverPort()));
         if (entry != QHostAddress::LocalHost && entry.toIPv4Address()) {
             ipAddress = entry.toString();
+
             break;
+
+
         }
+
     }
 
 
@@ -130,22 +139,26 @@ void server::PacketsHandle()
 
 
 
+
             }
             break;
         }
         case package::UPDATE_CLIENT:
         {
-            updateClient updating;
-            updating.deserialize(buffer);
+//            updateClient updating;
+//            updating.deserialize(buffer);
 
 
-            QJsonDocument doc = updating.getDocJson();
-            QJsonArray RoomArrays = doc.array();
+//            QJsonDocument doc = updating.getDocJson();
+//            QJsonArray RoomArrays = doc.array();
 
-            foreach(QJsonValue Room , RoomArrays)
-            {
-
-            }
+//            foreach(QJsonValue Room , RoomArrays)
+//            {
+//                TextMessage msg;
+//                msg.setReceiver(Room.toString());
+//                Client_Mssages up(msg);
+//                up.receiveUpdates(Clients,mydb,Clients.key(clientSocket),Room.toString());
+//            }
 
 
             break;
@@ -301,6 +314,7 @@ void server::PacketsHandle()
                 // While for other clients
 
                 QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),msg.getReciever());
+
                 QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,msg);
                 foreach (QString log, logs) {
                     ui->plainTextEdit->appendPlainText(log);
