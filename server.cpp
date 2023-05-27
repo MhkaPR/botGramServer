@@ -1,18 +1,19 @@
 
+
 #include "server.h"
 #include "ui_server.h"
 #include "classes/package.h"
-
 #include "classes/textmessage.h"
 #include "classes/connectverify.h"
 #include "classes/loginpacket.h"
 #include "classes/systemmessagepacket.h"
 #include "classes/adduser_spacket.h"
 #include "classes/tokenpacket.h"
+#include "classes/filemessage.h"
 
 
 #define PORT 9999
-#define MAX_LENGTH_DATA 1024
+#define MAX_LENGTH_DATA 51*1024
 server::server(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::server)
@@ -34,7 +35,6 @@ server::server(QWidget *parent)
         close();
         return;
     }
-
 
     QString ipAddress;
     const QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
@@ -108,7 +108,8 @@ void server::PacketsHandle()
         QByteArray buffer ;
         QDataStream in(&buffer,QIODevice::ReadOnly);
         in.setVersion(QDataStream::Qt_4_0);
-        buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 1 kb
+        buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 50 kb
+
 
         short header;  in >> header;
 
@@ -302,7 +303,7 @@ void server::PacketsHandle()
                 //add message in pv_1
 
                 messageProc.add_in_Room(&RoomName,senderUsername,
-                                        msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage());
+                                        msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage(),false);
 
                 msg.setReceiver(RoomName);
                 //update last update sender
@@ -382,7 +383,84 @@ void server::PacketsHandle()
 
             break;
         }
+        case package::FILEMESSAGE:
+        {
+            fileMessage fmsg(Clients.key(clientSocket));
+            fmsg.deserialize(buffer);
 
+
+            datasInRam[fmsg.getroom()][fmsg.getFileName()].append(fmsg.getData());// add part of file in ram
+
+
+            if(fmsg.IsEndFile())
+            {
+
+                QDir cur(QDir::current());
+                cur.cdUp();
+                cur.cd("serverTest01");
+                cur.cd("files");
+
+
+                QFile fileReceiive(cur.path());
+
+                fileReceiive.setFileName(fmsg.getroom()+"---"+fmsg.getFileName());
+                if(!fileReceiive.open(QIODevice::WriteOnly))
+                {
+                    sendmessage(fileReceiive.errorString());
+                    exit(1);
+                }
+                fileReceiive.write(fmsg.getData());
+
+
+
+                Client_Mssages messageProc(static_cast<TextMessage>(fmsg));
+                if(messageProc.MessageConfrime(mydb) == Client_Mssages::USER_FOUND_OK)
+                {
+
+                    QString RoomName =fmsg.getroom();
+
+                    QString senderUsername=Client_Mssages::getUsername(fmsg.getSender(),mydb);
+                    fmsg.setSender(senderUsername);
+                    //sasions for send correctly messages
+
+                    //add message in pv_1
+
+
+
+                    messageProc.add_in_Room(&RoomName,senderUsername,
+                                            fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),fmsg.getFileName(),true);
+
+                    fmsg.setroom(RoomName);
+                    //update last update sender
+
+                    messageProc.update_last_update(senderUsername,senderUsername,RoomName
+                                                   ,fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+
+
+                    // While for other clients
+
+                    QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),fmsg.getroom());
+
+
+                    QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,static_cast<TextMessage>(fmsg));
+                    foreach (QString log, logs) {
+                        ui->plainTextEdit->appendPlainText(log);
+                    }
+
+
+                }
+                else
+                {
+
+                }
+
+
+
+
+            }
+            break;
+
+        }
         default:break;
         }
 

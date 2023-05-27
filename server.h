@@ -31,6 +31,8 @@
 #include "classes/roompacket.h"
 #include "classes/updateclient.h"
 
+#include <QDir>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }
 QT_END_NAMESPACE
@@ -64,6 +66,8 @@ private:
     QMap<QString,QTcpSocket*> Clients;
     QList<QTcpSocket*> clients;
     QList<QString> Clients_Username;
+
+     QMap<QString,QMap<QString,QByteArray>> datasInRam;
 
 };
 #endif // SERVER_H

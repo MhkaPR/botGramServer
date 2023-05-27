@@ -34,6 +34,11 @@ QByteArray TextMessage::serialize()
     return buffer;
 }
 
+bool TextMessage::getIsFile()
+{
+    return IsFile;
+}
+
 QString TextMessage::getSender()
 {
     return  sender;
@@ -54,6 +59,11 @@ QDateTime TextMessage::gettimeSend()
     return timeSend;
 }
 
+QByteArray TextMessage::getbuf()
+{
+    return buf;
+}
+
 package::SEND_STATE TextMessage::getstateMessage()
 {
     return stateMessage;
@@ -68,3 +78,20 @@ void TextMessage::setReceiver(QString value)
 {
     Reciever = value;
 }
+
+void TextMessage::setbuf(QByteArray value)
+{
+    buf = value;
+}
+
+void TextMessage::setmessage(QString value)
+{
+    Message = value;
+}
+
+void TextMessage::setIsFile(bool value)
+{
+    IsFile =value;
+}
+
+

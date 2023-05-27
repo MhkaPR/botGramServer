@@ -47,7 +47,7 @@ short Client_Mssages::ConnectConfrime(QSqlDatabase Db, QString& Token_username, 
     return USER_FOUND_OK;
 }
 
-short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,QString message)
+short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,QString message,bool Isfile)
 {
 
     QStringList RoomData = RoomName->split("_");
@@ -72,6 +72,7 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
                 data.insert("name","text");
                 data.insert("message","text");
                 data.insert("date","text");
+                data.insert("isFile","integer");
                 err = create_Table(*RoomName,data);
                 if(err == DataBase::ADDED_TABLE)
                 {
@@ -133,11 +134,12 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
     QSqlQuery query_ADD_Message_in_Room(db);
 
     query_ADD_Message_in_Room.prepare("INSERT INTO "+(*RoomName)+
-                                      " (name,message,date)"
-                                      " VALUES (:n,:m,:d)");
+                                      " (name,message,date,isFile)"
+                                      " VALUES (:n,:m,:d,"+QString::number(Isfile)+")");
     query_ADD_Message_in_Room.bindValue(":n",sender);
     query_ADD_Message_in_Room.bindValue(":m",message);
     query_ADD_Message_in_Room.bindValue(":d",Date);
+
     if(!query_ADD_Message_in_Room.exec())
     {
         if(RoomData[0]=="pv")
@@ -149,8 +151,8 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
 
             query_ADD_Message_in_Room.clear();
             query_ADD_Message_in_Room.prepare("INSERT INTO "+(*RoomName)+
-                                              " (name,message,date)"
-                                              " VALUES (:n,:m,:d)");
+                                              " (name,message,date,isFile)"
+                                              " VALUES (:n,:m,:d,"+QString::number(Isfile)+")");
             query_ADD_Message_in_Room.bindValue(":n",sender);
             query_ADD_Message_in_Room.bindValue(":m",message);
             query_ADD_Message_in_Room.bindValue(":d",Date);
@@ -312,6 +314,7 @@ QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& client
         {
             if(!IsUpdateData(recieverName,msg.getReciever(),lastupdate))
             {
+
                 QByteArray buf = getupdates(get_LastUpdate(recieverName,msg.getReciever()),msg);
 
                 clients[recieverName]->write(buf);
@@ -508,20 +511,22 @@ QByteArray Client_Mssages::getupdates( QString lastUserUpdate, TextMessage msg)
         query_getUpdates.clear();
         exit(1);
     }
+
+
     QJsonObject objs;
     while(query_getUpdates.next())
     {
 
+            QJsonArray data;
+            QString messageNew = query_getUpdates.value("message").toString();
 
-        QJsonArray data;
-        QString messageNew = query_getUpdates.value("message").toString();
+            data.append(messageNew);
+            QString timeNew = query_getUpdates.value("date").toString();
+            data.append(timeNew);
 
-        data.append(messageNew);
-        QString timeNew = query_getUpdates.value("date").toString();
-        data.append(timeNew);
+            objs.insert(query_getUpdates.value("name").toString(),data);
 
-        objs.insert(query_getUpdates.value("name").toString(),data);
-
+            objs.insert("isFile",query_getUpdates.value("isFile").toBool());
 
 
     }

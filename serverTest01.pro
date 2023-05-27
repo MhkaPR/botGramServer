@@ -25,6 +25,8 @@ SOURCES += \
     classes/client_mssages.cpp \
     classes/connectverify.cpp \
     classes/database.cpp \
+#    classes/imgaemessage.cpp \
+    classes/filemessage.cpp \
     classes/loginpacket.cpp \
     classes/package.cpp \
 #    classes/package.cpp \
@@ -51,6 +53,8 @@ HEADERS += \
     classes/client_mssages.h \
     classes/connectverify.h \
     classes/database.h \
+#    classes/imgaemessage.h \
+    classes/filemessage.h \
     classes/loginpacket.h \
     classes/package.h \
 #    classes/package.h \
