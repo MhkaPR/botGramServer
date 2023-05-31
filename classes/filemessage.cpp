@@ -94,6 +94,8 @@ QDateTime fileMessage::gettimeSend()
     return timeSend;
 }
 
+
+
 fileMessage::operator TextMessage()
 {
     TextMessage msg;
@@ -103,6 +105,8 @@ fileMessage::operator TextMessage()
     msg.setbuf(Data);
     msg.setmessage(FileName);
     msg.setIsFile(true);
+    msg.timeSend = timeSend;
+
 
     return msg;
 

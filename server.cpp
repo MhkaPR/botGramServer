@@ -12,8 +12,9 @@
 #include "classes/filemessage.h"
 
 
+
 #define PORT 9999
-#define MAX_LENGTH_DATA 51*1024
+#define MAX_LENGTH_DATA 55*1024
 server::server(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::server)
@@ -40,9 +41,9 @@ server::server(QWidget *parent)
     const QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
     // use the first non-localhost IPv4 address
     for (const QHostAddress &entry : ipAddressesList) {
-//        ipAddress = entry.toString();
-//        ui->plainTextEdit->appendPlainText(tr("The server is running on\n\nIP: %1\nport: %2\n\n")
-//                         .arg(ipAddress).arg(tcpServer->serverPort()));
+        //        ipAddress = entry.toString();
+        //        ui->plainTextEdit->appendPlainText(tr("The server is running on\n\nIP: %1\nport: %2\n\n")
+        //                         .arg(ipAddress).arg(tcpServer->serverPort()));
         if (entry != QHostAddress::LocalHost && entry.toIPv4Address()) {
             ipAddress = entry.toString();
 
@@ -52,7 +53,6 @@ server::server(QWidget *parent)
         }
 
     }
-
 
 
     // if we did not find one, use IPv4 localhost
@@ -108,13 +108,13 @@ void server::PacketsHandle()
         QByteArray buffer ;
         QDataStream in(&buffer,QIODevice::ReadOnly);
         in.setVersion(QDataStream::Qt_4_0);
-        buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 50 kb
+        buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 55 kb
 
 
         short header;  in >> header;
 
 
-        package *p=nullptr;
+        // package *p=nullptr;
 
 
 
@@ -146,20 +146,20 @@ void server::PacketsHandle()
         }
         case package::UPDATE_CLIENT:
         {
-//            updateClient updating;
-//            updating.deserialize(buffer);
+            //            updateClient updating;
+            //            updating.deserialize(buffer);
 
 
-//            QJsonDocument doc = updating.getDocJson();
-//            QJsonArray RoomArrays = doc.array();
+            //            QJsonDocument doc = updating.getDocJson();
+            //            QJsonArray RoomArrays = doc.array();
 
-//            foreach(QJsonValue Room , RoomArrays)
-//            {
-//                TextMessage msg;
-//                msg.setReceiver(Room.toString());
-//                Client_Mssages up(msg);
-//                up.receiveUpdates(Clients,mydb,Clients.key(clientSocket),Room.toString());
-//            }
+            //            foreach(QJsonValue Room , RoomArrays)
+            //            {
+            //                TextMessage msg;
+            //                msg.setReceiver(Room.toString());
+            //                Client_Mssages up(msg);
+            //                up.receiveUpdates(Clients,mydb,Clients.key(clientSocket),Room.toString());
+            //            }
 
 
             break;
@@ -320,100 +320,70 @@ void server::PacketsHandle()
                 foreach (QString log, logs) {
                     ui->plainTextEdit->appendPlainText(log);
                 }
-                // check client is online
-                //check last Update isn't update
-                // write new messages
-                // update last update reciver
-
-
-
-                //                QList<QString> values = Clients.keys();
-
-                //                for (int i=0; i < Clients.count() ;i++) {
-
-                //                    if(values[i] == msg.getReciever())
-                //                    {
-                //                        QByteArray bufMe;
-                //                        QDataStream out(&bufMe,QIODevice::WriteOnly);
-                //                        out.setVersion(QDataStream::Qt_4_0);
-
-                //                        out << package::Packeting(msg.getheader(),msg.serialize());
-                //                        Clients.value(values[i])->write(bufMe);
-                //                        qDebug() << bufMe;
-                //                        ui->plainTextEdit->appendPlainText(msg.getSender()+" -> "+msg.getReciever()+
-                //                                                           " in " + msg.gettimeSend().toString()+
-                //                                                           " :\n( "+msg.getMessage()+" )");
-
-                //                        break;
-                //                    }
-                //                }
-
-
-
-
-
 
 
             }
-            /*
-
-                    class pvroom
-                    {
-
-
-
-
-                        token
-
-                        client1
-                        client2
-                       list messages
-
-
-
-
-                    }
-              */
-
-
-            //        QByteArray buf;
-            //        QDataStream out(&buf,QIODevice::WriteOnly);
-            //        out.setVersion(QDataStream::Qt_4_0);
-
-
-            break;
+             break;
         }
         case package::FILEMESSAGE:
         {
+
+            static quint64 count = 1;
+            //sendmessage(QString::number(buffer.length()));
+            //sendmessage(QString::number(buffer.length()));
             fileMessage fmsg(Clients.key(clientSocket));
+
+
+
             fmsg.deserialize(buffer);
 
+            static quint64 bufsize=0;
+            bufsize += static_cast<quint64>(buffer.size());
 
-            datasInRam[fmsg.getroom()][fmsg.getFileName()].append(fmsg.getData());// add part of file in ram
+            //            static QByteArray bufRam;
+            //            qint32 bufsize = bufRam.size();
+
+            //            bufRam.append(fmsg.getData());
+            //
+            //datasInRam[fmsg.getroom()][fmsg.getFileName()].append(fmsg.getData());// add part of file in ram
+
+
+
+
+
+
+
+            QDir cur(QDir::current());
+            cur.cdUp();
+            cur.cd("serverTest01");
+            cur.cd("files");
+
+
+
+
+            QFile fileReceiive(cur.path());
+
+            fileReceiive.setFileName(fmsg.getroom()+"---"+fmsg.getFileName());
+            if(!fileReceiive.open(QIODevice::Append | QIODevice::WriteOnly))
+            {
+                sendmessage(fileReceiive.errorString());
+                exit(1);
+            }
+            fileReceiive.write(fmsg.getData());
+            ui->plainTextEdit->appendPlainText("loaded "+QString::number(bufsize));
+            //fileReceiive.flush()
+            fileReceiive.close();
+
+
+
 
 
             if(fmsg.IsEndFile())
             {
 
-                QDir cur(QDir::current());
-                cur.cdUp();
-                cur.cd("serverTest01");
-                cur.cd("files");
-
-
-                QFile fileReceiive(cur.path());
-
-                fileReceiive.setFileName(fmsg.getroom()+"---"+fmsg.getFileName());
-                if(!fileReceiive.open(QIODevice::WriteOnly))
-                {
-                    sendmessage(fileReceiive.errorString());
-                    exit(1);
-                }
-                fileReceiive.write(fmsg.getData());
-
-
-
                 Client_Mssages messageProc(static_cast<TextMessage>(fmsg));
+
+
                 if(messageProc.MessageConfrime(mydb) == Client_Mssages::USER_FOUND_OK)
                 {
 
@@ -424,8 +394,6 @@ void server::PacketsHandle()
                     //sasions for send correctly messages
 
                     //add message in pv_1
-
-
 
                     messageProc.add_in_Room(&RoomName,senderUsername,
                                             fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),fmsg.getFileName(),true);
@@ -439,7 +407,10 @@ void server::PacketsHandle()
 
                     // While for other clients
 
+
+
                     QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),fmsg.getroom());
+
 
 
                     QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,static_cast<TextMessage>(fmsg));
@@ -449,15 +420,23 @@ void server::PacketsHandle()
 
 
                 }
-                else
-                {
-
-                }
 
 
+
+                bufsize = 0;
+
+            }
+            else {
 
 
             }
+
+            QString temp = "~";
+            clientSocket->write(temp.toStdString().c_str());
+            //clientSocket->flush();
+
+
+            count++;
             break;
 
         }
@@ -470,7 +449,6 @@ void server::PacketsHandle()
 
 
 }
-
 
 void server::ProgressOfClients()
 {

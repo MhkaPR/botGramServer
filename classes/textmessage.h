@@ -33,7 +33,6 @@ public:
     void setmessage(QString value);
     void setIsFile(bool value);
 
-private:
     bool IsFile=false;
     QString sender;
     QString Reciever ;
@@ -41,6 +40,9 @@ private:
     QDateTime timeSend;
     SEND_STATE stateMessage;
     QByteArray buf;
+
+private:
+
 
 };
 

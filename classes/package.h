@@ -23,6 +23,7 @@ public:
         FILEMESSAGE
 
     };
+
     enum SEND_STATE : short
     {
         sendMode,

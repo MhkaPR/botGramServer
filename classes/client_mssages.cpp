@@ -193,9 +193,9 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
     QSqlQuery query_update_last_update(db);
 
     query_update_last_update.prepare("UPDATE "+
-                                     username+" SET lastMessage_Info = :data , updateSender = :up WHERE Rooms = :room");
+                                     username+" SET lastMessage_Info = :date , updateSender = :up WHERE Rooms = :room");
 
-    query_update_last_update.bindValue(":data",date);
+    query_update_last_update.bindValue(":date",date);
     query_update_last_update.bindValue(":up",sender_update);
     query_update_last_update.bindValue(":room",RoomName);
 
@@ -210,38 +210,7 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
         query_update_last_update.clear();
         return DATABASE_ERROR;
     }
-    //    if(!query_update_last_update.next())
-    //    {
-    //        QStringList splitedRoom = RoomName.split("_");
 
-    //        if(splitedRoom[0]== "pv")
-    //        {
-    //            splitedRoom.swapItemsAt(1,2);
-    //            QString tempRoom = splitedRoom.join("_");
-    //            query_update_last_update.clear();
-
-    //            query_update_last_update.prepare("UPDATE "+
-    //                                             username+" SET lastMessage_Info = :data , updateSender = :up WHERE Rooms = :room");
-
-    //            query_update_last_update.bindValue(":data",date);
-    //            query_update_last_update.bindValue(":up",sender_update);
-    //            query_update_last_update.bindValue(":room",tempRoom);
-
-    //            if(!query_update_last_update.exec())
-    //            {
-    //                QMessageBox *m= new QMessageBox();
-    //                m->setText("update_last_update: "+query_update_last_update.lastError().text());
-    //                m->exec();
-    //                delete m;
-
-    //                query_update_last_update.clear();
-    //                return DATABASE_ERROR;
-    //            }
-    //            //swap names
-
-    //        }
-
-    //    }
     query_update_last_update.finish();
 
     return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
@@ -264,6 +233,7 @@ QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& client
 
     if(!query_SendRommClients.exec())
     {
+
         QStringList roomData = msg.getReciever().split("_");
         if(roomData[0] == "pv")
         {
@@ -319,7 +289,10 @@ QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& client
 
                 clients[recieverName]->write(buf);
                 if( clients[recieverName]->waitForBytesWritten())
-                    update_last_update(recieverName,msg.getSender(),RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+                {
+                   short err =  update_last_update(recieverName,msg.getSender(),RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+
+                }
                 QString temp = msg.getSender() + " -> " + recieverName+" in "+msg.gettimeSend().toString("yyyy.MM.dd / hh:mm:ss")+" : \n( "
                         +msg.getMessage()+" )";
                 log.append(temp);
@@ -517,16 +490,16 @@ QByteArray Client_Mssages::getupdates( QString lastUserUpdate, TextMessage msg)
     while(query_getUpdates.next())
     {
 
-            QJsonArray data;
-            QString messageNew = query_getUpdates.value("message").toString();
+        QJsonArray data;
+        QString messageNew = query_getUpdates.value("message").toString();
 
-            data.append(messageNew);
-            QString timeNew = query_getUpdates.value("date").toString();
-            data.append(timeNew);
+        data.append(messageNew);
+        QString timeNew = query_getUpdates.value("date").toString();
+        data.append(timeNew);
 
-            objs.insert(query_getUpdates.value("name").toString(),data);
+        objs.insert(query_getUpdates.value("name").toString(),data);
 
-            objs.insert("isFile",query_getUpdates.value("isFile").toBool());
+        objs.insert("isFile",query_getUpdates.value("isFile").toBool());
 
 
     }
