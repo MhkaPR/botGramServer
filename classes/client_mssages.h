@@ -18,7 +18,7 @@
 #include "queriespacket.h"
 #include <QMap>
 
-class Client_Mssages : DataBase
+class Client_Mssages :public DataBase
 {
 public:
     enum Errors
@@ -56,12 +56,16 @@ public:
 
 private:
 
+
+
+
+protected:
     QString TableName;
     TextMessage MessageStruct;
 
     bool IsUpdateData(QString SenderName, QString RoomName,QString lastSenderUpdate);
+    virtual QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
 
-    QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
 };
 
 

@@ -31,6 +31,7 @@
 #include "classes/roompacket.h"
 #include "classes/updateclient.h"
 #include "classes/searchuser.h"
+#include "classes/updatemessagepacket.h"
 
 #include <QDir>
 

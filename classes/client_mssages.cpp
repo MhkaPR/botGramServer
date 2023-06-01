@@ -159,7 +159,8 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
             if(!query_ADD_Message_in_Room.exec())
             {
                 QMessageBox *m= new QMessageBox();
-                m->setText("add in room -> swaped data:"+query_ADD_Message_in_Room.lastError().text());
+                m->setText("add in room -> "
+                           "swaped data:"+query_ADD_Message_in_Room.lastError().text());
                 m->exec();
                 delete m;
 

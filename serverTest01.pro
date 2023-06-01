@@ -40,6 +40,7 @@ SOURCES += \
     classes/tokenbuilder.cpp \
     classes/tokenpacket.cpp \
     classes/updateclient.cpp \
+    classes/updatemessagepacket.cpp \
     classes/verify.cpp \
     main.cpp \
     server.cpp \
@@ -69,6 +70,7 @@ HEADERS += \
     classes/tokenbuilder.h \
     classes/tokenpacket.h \
     classes/updateclient.h \
+    classes/updatemessagepacket.h \
     classes/verify.h \
     server.h \
 #    verify.h
