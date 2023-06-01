@@ -21,7 +21,7 @@ bool DataBase::IsColumnInTable(QString ColName, QString tableName)
 
     if(splitedData[0]== "pv")
     {
-    splitedData.swapItemsAt(1,2);
+    splitedData.swap(1,2);
     QString swaped = splitedData.join("_");
 
     QSqlQuery query_IsCulomnInTable(db);

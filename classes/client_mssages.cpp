@@ -144,7 +144,7 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
     {
         if(RoomData[0]=="pv")
         {
-            RoomData.swapItemsAt(1,2);
+            RoomData.swap(1,2);
 
             *RoomName = RoomData.join("_");
 
@@ -238,7 +238,7 @@ QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& client
         if(roomData[0] == "pv")
         {
 
-            roomData.swapItemsAt(1,2);
+            roomData.swap(1,2);
 
             QString tempRoom = roomData.join("_");
 
