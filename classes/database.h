@@ -55,6 +55,9 @@ public:
 
     void setDataBase(QSqlDatabase Db);
     bool save_modifies();
+
+    QSqlDatabase getDb();
+    void setDb(QSqlDatabase Db);
 protected:
     QString name;
     QSqlDatabase db;

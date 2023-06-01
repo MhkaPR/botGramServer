@@ -3,15 +3,15 @@
 
 
 
-updateMessagePacket::updateMessagePacket(TextMessage message):msg(message) /*Client_Mssages(MessageStruct)*/{
+updateMessagePacket::updateMessagePacket()/*Client_Mssages(MessageStruct)*/{
 
 }
 
-void updateMessagePacket::getRoomsData()
+void updateMessagePacket::receiveRoomsData(QString sender)
 {
     QSqlQuery query_getRoomsData(db);
 
-    query_getRoomsData.prepare("SELECT * FROM "+msg.getSender());
+    query_getRoomsData.prepare("SELECT * FROM "+sender);
     if(!query_getRoomsData.exec())
     {
         QMessageBox *m= new QMessageBox();
@@ -24,7 +24,7 @@ void updateMessagePacket::getRoomsData()
         exit(1);
     }
 
-    QByteArray buffer_Update;
+    QByteArray buffer;
     while (query_getRoomsData.next()) {
 
 
@@ -32,12 +32,34 @@ void updateMessagePacket::getRoomsData()
         QString lastUpdate = query_getRoomsData.value("lastMessage_Info").toString();
 
         TextMessage msgTemp;
+        msgTemp.setReceiver(Roomname);
         Client_Mssages f(msgTemp);
-        buffer_Update.append('\n');
-        buffer_Update+=f.getupdates(lastUpdate,msg);
-
-
+        buffer.append('\n');
+        buffer+=f.getupdates(lastUpdate,msgTemp);
 
     }
+}
+
+void updateMessagePacket::deserialize(QByteArray buffer)
+{
+    QDataStream in(&buffer,QIODevice::ReadOnly);
+    in.setVersion(QDataStream::Qt_4_0);
+
+    qint64 headerMe;
+
+    in >> headerMe >> buffer;
+
+
+    header =static_cast<HEADERS>(headerMe);
+}
+
+QByteArray updateMessagePacket::serialize()
+{
+    QByteArray buf;
+    QDataStream out(&buf,QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+
+    out << static_cast<short>(header)<< buffer;
+    return  buf;
 }
 

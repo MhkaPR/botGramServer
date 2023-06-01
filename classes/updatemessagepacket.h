@@ -6,16 +6,20 @@
 #include "textmessage.h"
 #include "database.h"
 
-class updateMessagePacket: public DataBase
+class updateMessagePacket: public DataBase ,public package
 {
 public:
-    updateMessagePacket(TextMessage message);
-    void getRoomsData();
+    updateMessagePacket();
+   void receiveRoomsData(QString sender);
+
+   void deserialize(QByteArray buffer) override;
+   QByteArray serialize() override;
+
 
 
 
 private:
-    TextMessage msg;
+    QByteArray buffer;
 };
 
 #endif // UPDATEMESSAGEPACKET_H

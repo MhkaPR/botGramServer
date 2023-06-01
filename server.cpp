@@ -117,7 +117,6 @@ void server::PacketsHandle()
         // package *p=nullptr;
 
 
-
         //check header
         switch (header) {
         case package::CONNECT:
@@ -131,6 +130,14 @@ void server::PacketsHandle()
 
 
                 //get query of Rooms with lat update
+
+
+                updateMessagePacket updates;
+
+
+                updates.setDb(mydb);
+                updates.receiveRoomsData(Conn.Token);
+
 
                 //send one room data
                 //get answer of client to send nxt room data

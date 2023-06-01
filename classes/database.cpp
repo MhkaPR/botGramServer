@@ -133,6 +133,18 @@ short DataBase::create_Table(QString tableName, const QMap<QString, QString> Col
 
 void DataBase::setDataBase(QSqlDatabase Db)
 {
- db = Db;
+    db = Db;
+}
+
+QSqlDatabase DataBase::getDb()
+{
+    return db;
+
+}
+
+void DataBase::setDb(QSqlDatabase Db)
+{
+    db = Db;
+
 }
 

@@ -213,7 +213,7 @@ short Client_Mssages::update_last_update(QString username,QString sender_update,
     }
 
     query_update_last_update.finish();
-
+    query_update_last_update.value("lastupdate").toString();
     return UPDATE_LAST_DATE_MESSAGE_SUCCESSFULLY;
 }
 
