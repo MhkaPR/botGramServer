@@ -39,18 +39,17 @@ public:
     QString getemail();
 
 
-    void setuserdata(QStringList value);
-    QStringList getuserdata();
+
 
     short findUser(QSqlDatabase db,QString tableName = "Users_Information");
 
-
+    QString username;
+    QString name;
 
 private:
     //QString sender;
     QString email;
-   QString username;
-   QString name;
+
 };
 
 #endif // SEARCHUSER_H

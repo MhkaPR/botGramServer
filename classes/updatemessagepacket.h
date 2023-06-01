@@ -4,11 +4,10 @@
 #include <QObject>
 #include "client_mssages.h"
 #include "textmessage.h"
+#include "database.h"
 
-class updateMessagePacket
+class updateMessagePacket: public DataBase
 {
-
-
 public:
     updateMessagePacket(TextMessage message);
     void getRoomsData();
@@ -16,10 +15,7 @@ public:
 
 
 private:
-
     TextMessage msg;
-
-
 };
 
 #endif // UPDATEMESSAGEPACKET_H

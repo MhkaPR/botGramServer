@@ -17,10 +17,13 @@
 #include "textmessage.h"
 #include "queriespacket.h"
 #include <QMap>
+#include "updatemessagepacket.h"
 
 class Client_Mssages :public DataBase
 {
 public:
+
+    friend updateMessagePacket;
     enum Errors
     {
         USER_NOT_FOUND_WITH_THIS_TOKEN,
@@ -52,6 +55,7 @@ public:
 
     short addData_inPersonalTable(QString username,QString RoomName);
 
+     virtual QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
 
 
 private:
@@ -64,7 +68,7 @@ protected:
     TextMessage MessageStruct;
 
     bool IsUpdateData(QString SenderName, QString RoomName,QString lastSenderUpdate);
-    virtual QByteArray getupdates(QString lastUserUpdate,TextMessage msg);
+
 
 };
 
