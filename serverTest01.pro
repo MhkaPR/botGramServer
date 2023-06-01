@@ -34,6 +34,7 @@ SOURCES += \
     classes/queriespacket.cpp \
     classes/room.cpp \
     classes/roompacket.cpp \
+    classes/searchuser.cpp \
     classes/systemmessagepacket.cpp \
     classes/textmessage.cpp \
     classes/tokenbuilder.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     classes/queriespacket.h \
     classes/room.h \
     classes/roompacket.h \
+    classes/searchuser.h \
     classes/systemmessagepacket.h \
     classes/textmessage.h \
     classes/tokenbuilder.h \

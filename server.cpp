@@ -129,6 +129,13 @@ void server::PacketsHandle()
                 Clients[Conn.Token] = clientSocket;
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
 
+
+                //get query of Rooms with lat update
+
+                //send one room data
+                //get answer of client to send nxt room data
+
+
             }
             else
             {
@@ -138,29 +145,12 @@ void server::PacketsHandle()
                 if(clientSocket->state() == QAbstractSocket::UnconnectedState
                         || clientSocket->waitForDisconnected(5000));
 
-
-
-
             }
             break;
         }
         case package::UPDATE_CLIENT:
         {
-            //            updateClient updating;
-            //            updating.deserialize(buffer);
-
-
-            //            QJsonDocument doc = updating.getDocJson();
-            //            QJsonArray RoomArrays = doc.array();
-
-            //            foreach(QJsonValue Room , RoomArrays)
-            //            {
-            //                TextMessage msg;
-            //                msg.setReceiver(Room.toString());
-            //                Client_Mssages up(msg);
-            //                up.receiveUpdates(Clients,mydb,Clients.key(clientSocket),Room.toString());
-            //            }
-
+            //
 
             break;
         }
@@ -323,7 +313,7 @@ void server::PacketsHandle()
 
 
             }
-             break;
+            break;
         }
         case package::FILEMESSAGE:
         {
@@ -332,8 +322,6 @@ void server::PacketsHandle()
             //sendmessage(QString::number(buffer.length()));
             //sendmessage(QString::number(buffer.length()));
             fileMessage fmsg(Clients.key(clientSocket));
-
-
 
             fmsg.deserialize(buffer);
 
@@ -440,6 +428,33 @@ void server::PacketsHandle()
             break;
 
         }
+        case package::SEARCHUSER:
+        {
+            searchUserPackat search;
+            search.deserialize(buffer);
+
+            short err = search.findUser(mydb);
+
+
+            QByteArray buf_searchAns;
+            QDataStream out_searchAns(&buf_searchAns,QIODevice::WriteOnly);
+            out_searchAns.setVersion(QDataStream::Qt_4_0);
+
+            if(err != searchUserPackat::DATABASEERROR)
+            {
+
+                //send Answer
+                out_searchAns << static_cast<short>(search.getheader()) << search.serialize();
+                clientSocket->write(buf_searchAns);
+                clientSocket->waitForBytesWritten();
+
+            }
+            else exit(1);
+
+            break;
+
+        }
+
         default:break;
         }
 

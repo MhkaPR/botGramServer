@@ -30,6 +30,7 @@
 #include "classes/room.h"
 #include "classes/roompacket.h"
 #include "classes/updateclient.h"
+#include "classes/searchuser.h"
 
 #include <QDir>
 

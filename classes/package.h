@@ -20,7 +20,8 @@ public:
         TEXTMESSAGE,
         ROOMS,
         UPDATE_CLIENT,
-        FILEMESSAGE
+        FILEMESSAGE,
+        SEARCHUSER
 
     };
 
