@@ -1,5 +1,3 @@
-
-
 #include "server.h"
 #include "ui_server.h"
 #include "classes/package.h"
@@ -111,6 +109,10 @@ void server::PacketsHandle()
         buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 55 kb
 
 
+
+
+        if(buffer[0] == '~') return;
+
         short header;  in >> header;
 
 
@@ -126,17 +128,22 @@ void server::PacketsHandle()
             if(Client_Mssages::ConnectConfrime(mydb,Conn.Token) == Client_Mssages::USER_FOUND_OK)
             {
                 Clients[Conn.Token] = clientSocket;
+
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
 
 
                 //get query of Rooms with lat update
-
 
                 updateMessagePacket updates;
 
 
                 updates.setDb(mydb);
                 updates.receiveRoomsData(Conn.Token);
+
+                clientSocket->write(updates.buffer);
+                clientSocket->waitForBytesWritten(2000);
+                ui->plainTextEdit->appendPlainText("updated "+Clients.key(clientSocket)+" ///");
+
 
 
                 //send one room data
@@ -200,11 +207,11 @@ void server::PacketsHandle()
         }
         case package::SYSTEM:
         {
-            systemMessagePacket sysMsg;
-            short msg;
-            in >> msg;
-            sysMsg.setSysmsg(static_cast<package::SysCodes>(msg));
 
+
+            systemMessagePacket sysMsg;
+
+            sysMsg.deserialize(buffer);
 
             switch (sysMsg.getSysmsg()) {
             case package::Send_VerifyCode:
@@ -227,7 +234,53 @@ void server::PacketsHandle()
 
                 break;
             }
+            case package::send_file:
+            {
 
+
+                QJsonDocument doc;
+                doc = QJsonDocument::fromJson(sysMsg.getInformation());
+
+                QJsonObject obj = doc.object();
+
+
+
+                QDir cur = QDir::current();
+                cur.cdUp();
+                cur.cd("serverTest01/files/pv_testUser_mhka1382");
+
+                QString filename = obj["FileName"].toString();
+                QString filename_AND_Address = cur.path()+"/"+obj["room"].toString()+"---"+filename;
+                QFile *filefound = new QFile(filename_AND_Address);
+
+                if(filefound->exists())
+                {
+                    if(filefound->open(QIODevice::ReadOnly))
+                    {
+
+                    fileMessage fmsg(Clients.key(clientSocket));
+                    fmsg.setroom(obj["room"].toString());
+                    fmsg.setFileName(filename);
+                    fmsg.settimeSend(QDateTime::fromString(obj["FileName"].toString().left(17)));
+                    fmsg.setcount_size("0");
+                    fmsg.sendFile(filefound,clientSocket);
+
+
+                    }
+
+
+                }
+                else
+                {
+                    sendmessage("file not found");
+                    delete filefound;
+                }
+
+
+
+
+                break;
+            }
             default:break;
             }
             break;
@@ -350,15 +403,14 @@ void server::PacketsHandle()
 
             QDir cur(QDir::current());
             cur.cdUp();
-            cur.cd("serverTest01");
-            cur.cd("files");
+            cur.cd("serverTest01/files/"+fmsg.getroom());
 
 
 
 
-            QFile fileReceiive(cur.path());
+            QFile fileReceiive(cur.path()+"/"+fmsg.getroom()+"---"+fmsg.getFileName());
 
-            fileReceiive.setFileName(fmsg.getroom()+"---"+fmsg.getFileName());
+
             if(!fileReceiive.open(QIODevice::Append | QIODevice::WriteOnly))
             {
                 sendmessage(fileReceiive.errorString());
@@ -428,7 +480,7 @@ void server::PacketsHandle()
 
             QString temp = "~";
             clientSocket->write(temp.toStdString().c_str());
-            //clientSocket->flush();
+            clientSocket->waitForBytesWritten();
 
 
             count++;
@@ -461,6 +513,7 @@ void server::PacketsHandle()
             break;
 
         }
+
 
         default:break;
         }

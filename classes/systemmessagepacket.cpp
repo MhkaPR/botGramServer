@@ -17,7 +17,7 @@ void systemMessagePacket::deserialize(QByteArray buffer)
     qint64 headerMe;
     short Sys;
 
-    in >> headerMe >> Sys;
+    in >> headerMe >> Sys >> information;
 
     header =static_cast<HEADERS>(headerMe);
     Sysmsg =static_cast<SysCodes>(Sys);
@@ -29,7 +29,7 @@ QByteArray systemMessagePacket::serialize()
     QDataStream out(&buf,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
 
-    out << static_cast<short>(header) << static_cast<short>(Sysmsg);
+    out << static_cast<short>(header) << static_cast<short>(Sysmsg) << information;
     return  buf;
 }
 
@@ -42,5 +42,12 @@ package::SysCodes systemMessagePacket::getSysmsg()
 void systemMessagePacket::setSysmsg(package::SysCodes value)
 {
     Sysmsg = value;
+
+}
+
+QByteArray systemMessagePacket::getInformation()
+{
+
+    return information;
 
 }

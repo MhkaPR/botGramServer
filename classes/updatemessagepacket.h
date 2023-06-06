@@ -10,16 +10,16 @@ class updateMessagePacket: public DataBase ,public package
 {
 public:
     updateMessagePacket();
-   void receiveRoomsData(QString sender);
+    void receiveRoomsData(QString sender);
 
-   void deserialize(QByteArray buffer) override;
-   QByteArray serialize() override;
+    void deserialize(QByteArray buffer) override;
+    QByteArray serialize() override;
 
 
-
+    QByteArray buffer;
 
 private:
-    QByteArray buffer;
+
 };
 
 #endif // UPDATEMESSAGEPACKET_H

@@ -5,7 +5,7 @@
 
 #include "package.h"
 
-
+#include "QFile"
 #include "textmessage.h"
 
 class fileMessage : public package
@@ -37,6 +37,8 @@ public:
 
     void settimeSend(QDateTime value);
     QDateTime gettimeSend();
+
+    void sendFile(QFile* file , QTcpSocket* socket);
 
     operator TextMessage();
 

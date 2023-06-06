@@ -113,4 +113,46 @@ fileMessage::operator TextMessage()
 
 }
 
+void fileMessage::sendFile(QFile *file, QTcpSocket *socket)
+{
+    quint64 fileSize = static_cast<quint64>(file->size());
+    while (!file->atEnd() /*&& (fmsg.getcount_size() != "!")*/) {
+
+        if(fileSize < 50* 1024 )
+        {
+
+            Data = file->read(static_cast<qint64>(fileSize));
+            count_size = "!";
+            fileSize -= fileSize;
+        }
+        else
+        {
+
+            Data = file->read(50*1024);
+            fileSize -= 50*1024;
+
+        }
+
+
+        QByteArray buf5;
+        QDataStream out5(&buf5,QIODevice::WriteOnly);
+        out5.setVersion(QDataStream::Qt_4_0);
+
+
+
+        out5<<static_cast<short>(header)<<serialize();
+
+
+
+       //send pack
+        socket->write(buf5);
+        socket->waitForBytesWritten();
+        qDebug() << "writed " << buf5.size();
+        socket->flush();
+        socket->waitForReadyRead();
+
+    }
+    file->close();
+}
+
 

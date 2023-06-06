@@ -23,7 +23,7 @@ class Client_Mssages :public DataBase
 {
 public:
 
-    friend updateMessagePacket;
+    //friend updateMessagePacket;
     enum Errors
     {
         USER_NOT_FOUND_WITH_THIS_TOKEN,
