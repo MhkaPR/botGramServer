@@ -103,6 +103,8 @@ void server::PacketsHandle()
     else
     {
 
+
+
         QByteArray buffer ;
         QDataStream in(&buffer,QIODevice::ReadOnly);
         in.setVersion(QDataStream::Qt_4_0);
@@ -115,7 +117,7 @@ void server::PacketsHandle()
 
         short header;  in >> header;
 
-
+         ui->plainTextEdit->appendPlainText(QString::number(header));
         // package *p=nullptr;
 
 
@@ -170,21 +172,23 @@ void server::PacketsHandle()
         }
         case package::VERIFY:
         {
-
+            ui->plainTextEdit->appendPlainText("someone wants to verify");
             loginPacket loginData;
             loginData.deserialize(buffer);
             Verify myVerify(mydb,loginData);
 
+            ui->plainTextEdit->appendPlainText(QString::number(myVerify.IsLogin));
+            //sendmessage(loginData.getJsonLoginData());
             if(myVerify.IsLogin)
             {
                 systemMessagePacket SysMsg;
                 SysMsg.setSysmsg(myVerify.Login());
-
+                ui->plainTextEdit->appendPlainText(QString::number(static_cast<short>(SysMsg.getSysmsg())));
                 QByteArray answerBuf;
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
 
-                out << package::Packeting( SysMsg.getheader(),SysMsg.serialize());
+                out << static_cast<short>( SysMsg.getheader())<<SysMsg.serialize();
 
                 clientSocket->write(answerBuf);
 
@@ -198,8 +202,8 @@ void server::PacketsHandle()
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
 
-                out << package::Packeting(SysMsg.getheader(),SysMsg.serialize());
-
+                out << static_cast<short>(SysMsg.getheader())<<SysMsg.serialize();
+               // sendmessage(QString::number(static_cast<short>(SysMsg.getSysmsg())));
                 clientSocket->write(answerBuf);
 
             }
@@ -227,8 +231,8 @@ void server::PacketsHandle()
 
                 CheckVerifySafePacket safepackate = myAutho.getSafeVerify();
 
-                out << package::Packeting(safepackate.getheader(),safepackate.serialize());
-
+                out << static_cast<short>(safepackate.getheader())<<safepackate.serialize();
+                // sendmessage(safepackate.getAnswer());
                 clientSocket->write(answerBuf);
 
 
@@ -303,7 +307,7 @@ void server::PacketsHandle()
             TokenBuilder T(DB_Name,mydb);
             TokenPacket Clienttoken;
             Clienttoken.setToken(T.token());
-            out << package::Packeting(Clienttoken.getheader(),Clienttoken.serialize());
+            out << static_cast<short>(Clienttoken.getheader())<<Clienttoken.serialize();
 
             loginPacket userL;
             userL.setJsonLoginData(user.getdata());
