@@ -19,6 +19,8 @@
 #include <QMap>
 #include "updatemessagepacket.h"
 
+#include <cstdlib>
+
 class Client_Mssages :public DataBase
 {
 public:

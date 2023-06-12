@@ -102,6 +102,11 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
                         exit(1);
                     }
 
+                   QString cur = QDir::currentPath()+"/files/"+(*RoomName);
+
+                   QDir().mkpath(cur);
+
+
 
                 }
                 else {
@@ -291,7 +296,7 @@ QStringList Client_Mssages::sendForRoomClients(QMap<QString,QTcpSocket*>& client
                 clients[recieverName]->write(buf);
                 if( clients[recieverName]->waitForBytesWritten())
                 {
-                   short err =  update_last_update(recieverName,msg.getSender(),RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
+                    short err =  update_last_update(recieverName,msg.getSender(),RoomName,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
                 }
                 QString temp = msg.getSender() + " -> " + recieverName+" in "+msg.gettimeSend().toString("yyyy.MM.dd / hh:mm:ss")+" : \n( "

@@ -417,7 +417,7 @@ void server::PacketsHandle()
                                         msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),msg.getMessage(),false);
 
                 msg.setReceiver(RoomName);
-                //update last update sender
+                //update last update sende
 
                 messageProc.update_last_update(senderUsername,senderUsername,RoomName
                                                ,msg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
