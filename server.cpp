@@ -117,7 +117,7 @@ void server::PacketsHandle()
 
         short header;  in >> header;
 
-         ui->plainTextEdit->appendPlainText(QString::number(header));
+        ui->plainTextEdit->appendPlainText(QString::number(header));
         // package *p=nullptr;
 
 
@@ -136,15 +136,15 @@ void server::PacketsHandle()
 
                 //get query of Rooms with lat update
 
-                updateMessagePacket updates;
+                //                updateMessagePacket updates;
 
 
-                updates.setDb(mydb);
-                updates.receiveRoomsData(Conn.Token);
+                //                updates.setDb(mydb);
+                //                updates.receiveRoomsData(Conn.Token);
 
-                clientSocket->write(updates.buffer);
-                clientSocket->waitForBytesWritten(2000);
-                ui->plainTextEdit->appendPlainText("updated "+Clients.key(clientSocket)+" ///");
+                //                clientSocket->write(updates.buffer);
+                //                clientSocket->waitForBytesWritten(2000);
+                //                ui->plainTextEdit->appendPlainText("updated "+Clients.key(clientSocket)+" ///");
 
 
 
@@ -222,8 +222,19 @@ void server::PacketsHandle()
                 out.setVersion(QDataStream::Qt_4_0);
 
                 out << static_cast<short>(SysMsg.getheader())<<SysMsg.serialize();
-               // sendmessage(QString::number(static_cast<short>(SysMsg.getSysmsg())));
+                // sendmessage(QString::number(static_cast<short>(SysMsg.getSysmsg())));
                 clientSocket->write(answerBuf);
+
+                QSqlQuery query_createTableForNewClient(mydb);
+                query_createTableForNewClient.prepare("CREATE TABLE "+myVerify.username+" (ID INTEGER,Rooms TEXT,lastMessage_Info TEXT,updateSender TEXT)");
+
+                if(!query_createTableForNewClient.exec())
+                {
+                    QMessageBox::information(this,"warning","Execute the query","ok");
+                    return;
+                }
+                query_createTableForNewClient.finish();
+
 
             }
             break;
@@ -281,12 +292,12 @@ void server::PacketsHandle()
                     if(filefound->open(QIODevice::ReadOnly))
                     {
 
-                    fileMessage fmsg(Clients.key(clientSocket));
-                    fmsg.setroom(obj["room"].toString());
-                    fmsg.setFileName(filename);
-                    fmsg.settimeSend(QDateTime::fromString(obj["FileName"].toString().left(17)));
-                    fmsg.setcount_size("0");
-                    fmsg.sendFile(filefound,clientSocket);
+                        fileMessage fmsg(Clients.key(clientSocket));
+                        fmsg.setroom(obj["room"].toString());
+                        fmsg.setFileName(filename);
+                        fmsg.settimeSend(QDateTime::fromString(obj["FileName"].toString().left(17)));
+                        fmsg.setcount_size("0");
+                        fmsg.sendFile(filefound,clientSocket);
 
 
                     }
@@ -312,7 +323,7 @@ void server::PacketsHandle()
                 jsonobj =jsondoc.object();
 
                 QSqlQuery query(mydb);
-                 query.prepare("UPDATE Users_Information SET  Name=:n WHERE username=:u");
+                query.prepare("UPDATE Users_Information SET  Name=:n WHERE username=:u");
 
                 qDebug() << jsonobj["name"].toString();
                 query.bindValue(":n",jsonobj["name"].toString());
