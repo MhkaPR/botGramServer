@@ -51,3 +51,9 @@ QByteArray systemMessagePacket::getInformation()
     return information;
 
 }
+
+void systemMessagePacket::setInformation(QByteArray value)
+{
+    information=value;
+
+}

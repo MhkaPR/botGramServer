@@ -18,7 +18,7 @@ public:
     SysCodes getSysmsg();
     void setSysmsg(SysCodes value);
     QByteArray getInformation();
-
+    void setInformation(QByteArray value);
 private:
     SysCodes Sysmsg;
     QByteArray information;

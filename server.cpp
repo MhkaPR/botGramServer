@@ -187,7 +187,25 @@ void server::PacketsHandle()
                 QByteArray answerBuf;
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
+                QSqlQuery query;
+                query.prepare("SELECT email , Name FROM Users_Information WHERE username=:u ");
+                query.bindValue(":u",myVerify.username);
+                // Execute the query
+                if (!query.exec()) {
+                    qDebug() << "Failed to execute query!";
+                    query.finish();
 
+                    return;
+                }
+                if(query.next())
+                {
+                    QJsonDocument jsondoc;
+                    QJsonObject jsonobj;
+                    jsonobj.insert("email",query.value("email").toString());
+                    jsonobj.insert("name",query.value("Name").toString());
+                    jsondoc.setObject(jsonobj);
+                    SysMsg.setInformation(jsondoc.toJson());
+                }
                 out << static_cast<short>( SysMsg.getheader())<<SysMsg.serialize();
 
                 clientSocket->write(answerBuf);
@@ -283,6 +301,33 @@ void server::PacketsHandle()
 
 
 
+                break;
+            }
+            case package::get_name:
+            {
+
+                QJsonDocument jsondoc = QJsonDocument::fromJson(sysMsg.getInformation());
+                QJsonObject jsonobj;
+                jsonobj =jsondoc.object();
+
+                QSqlQuery query(mydb);
+                 query.prepare("UPDATE Users_Information SET  Name=:n WHERE username=:u");
+
+                qDebug() << jsonobj["name"].toString();
+                query.bindValue(":n",jsonobj["name"].toString());
+                query.bindValue(":u",jsonobj["username"].toString());
+
+                // Execute the query
+                if (!query.exec()) {
+                    QMessageBox::information(this,"warning",query.lastError().text(),"ok");
+
+                    return;
+                }
+
+                query.finish();
+                mydb.commit();
+                clientSocket->write("~");
+                clientSocket->waitForBytesWritten();
                 break;
             }
             default:break;

@@ -19,13 +19,13 @@ public:
     package::SysCodes checkForSignIn();
     bool addNewUser(QString Token);
     userInfo UserInformation();
-
-
-private:
-    QSqlDatabase database;
     QString username;
     QString password;
     QString email;
+
+private:
+    QSqlDatabase database;
+
      QString BuildToken();
 };
 

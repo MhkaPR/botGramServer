@@ -41,7 +41,9 @@ public:
         s_username_is_repititive,
         s_email_is_repititive,
         s_send_apply_For_Link,
+        get_name,
         send_file,
+
 
     };
     enum RoomType :short
