@@ -188,7 +188,7 @@ void server::PacketsHandle()
                 QDataStream out(&answerBuf,QIODevice::WriteOnly);
                 out.setVersion(QDataStream::Qt_4_0);
                 QSqlQuery query;
-                query.prepare("SELECT email , Name FROM Users_Information WHERE username=:u ");
+                query.prepare("SELECT email , Name, Token FROM Users_Information WHERE username=:u ");
                 query.bindValue(":u",myVerify.username);
                 // Execute the query
                 if (!query.exec()) {
@@ -203,6 +203,7 @@ void server::PacketsHandle()
                     QJsonObject jsonobj;
                     jsonobj.insert("email",query.value("email").toString());
                     jsonobj.insert("name",query.value("Name").toString());
+                    jsonobj.insert("token",query.value("Token").toString());
                     jsondoc.setObject(jsonobj);
                     SysMsg.setInformation(jsondoc.toJson());
                 }
