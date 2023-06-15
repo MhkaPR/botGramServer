@@ -280,8 +280,8 @@ void server::PacketsHandle()
 
 
                 QDir cur = QDir::current();
-                cur.cdUp();
-                cur.cd("serverTest01/files/pv_testUser_mhka1382");
+                //cur.cdUp();
+                cur.cd("files/"+obj["room"].toString());
 
                 QString filename = obj["FileName"].toString();
                 QString filename_AND_Address = cur.path()+"/"+obj["room"].toString()+"---"+filename;
