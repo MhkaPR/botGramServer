@@ -50,6 +50,14 @@ short Client_Mssages::ConnectConfrime(QSqlDatabase Db, QString& Token_username, 
 short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,QString message,bool Isfile)
 {
 
+    QDir checkdirection;
+
+
+   QString cur = QDir::currentPath()+"/files/"+(*RoomName);
+
+   checkdirection.setPath(cur);
+   if(!checkdirection.exists())
+   QDir().mkpath(cur);
     QStringList RoomData = RoomName->split("_");
 
     //check room exist.
@@ -102,9 +110,7 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
                         exit(1);
                     }
 
-                   QString cur = QDir::currentPath()+"/files/"+(*RoomName);
 
-                   QDir().mkpath(cur);
 
 
 

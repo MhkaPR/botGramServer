@@ -463,8 +463,8 @@ void server::PacketsHandle()
 
 
             QDir cur(QDir::current());
-            cur.cdUp();
-            cur.cd("serverTest01/files/"+fmsg.getroom());
+           // cur.cdUp();
+            cur.cd("files/"+fmsg.getroom());
 
 
 
@@ -489,27 +489,32 @@ void server::PacketsHandle()
             if(fmsg.IsEndFile())
             {
 
+
+
                 Client_Mssages messageProc(static_cast<TextMessage>(fmsg));
 
+//                    short errr= static_cast<short>(messageProc.MessageConfrime(mydb));
+//                    sendmessage(QString::number(errr)+"\n"+fmsg.getSender());
+//                if(errr == static_cast<short>( Client_Mssages::USER_FOUND_OK))
 
-                if(messageProc.MessageConfrime(mydb) == Client_Mssages::USER_FOUND_OK)
-                {
+//                {
 
                     QString RoomName =fmsg.getroom();
 
-                    QString senderUsername=Client_Mssages::getUsername(fmsg.getSender(),mydb);
-                    fmsg.setSender(senderUsername);
+//                    QString senderUsername=Client_Mssages::getUsername(fmsg.getSender(),mydb);
+//                    fmsg.setSender(senderUsername);
                     //sasions for send correctly messages
 
                     //add message in pv_1
-
-                    messageProc.add_in_Room(&RoomName,senderUsername,
+                    // qDebug() << RoomName;
+                     //qDebug()<<senderUsername;
+                    messageProc.add_in_Room(&RoomName,fmsg.getSender(),
                                             fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),fmsg.getFileName(),true);
 
                     fmsg.setroom(RoomName);
                     //update last update sender
 
-                    messageProc.update_last_update(senderUsername,senderUsername,RoomName
+                    messageProc.update_last_update(fmsg.getSender(),fmsg.getSender(),RoomName
                                                    ,fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
 
@@ -524,7 +529,7 @@ void server::PacketsHandle()
                     QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,static_cast<TextMessage>(fmsg));
                     foreach (QString log, logs) {
                         ui->plainTextEdit->appendPlainText(log);
-                    }
+                    //}
 
 
                 }
