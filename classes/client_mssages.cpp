@@ -53,11 +53,11 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
     QDir checkdirection;
 
 
-   QString cur = QDir::currentPath()+"/files/"+(*RoomName);
+    QString cur = QDir::currentPath()+"/files/"+(*RoomName);
 
-   checkdirection.setPath(cur);
-   if(!checkdirection.exists())
-   QDir().mkpath(cur);
+    checkdirection.setPath(cur);
+    if(!checkdirection.exists())
+        QDir().mkpath(cur);
     QStringList RoomData = RoomName->split("_");
 
     //check room exist.
@@ -96,9 +96,14 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
                             foreach (QString var, users)
                             {
                                 if(var != sender)
+                                {
+
+
                                     err = addData_inPersonalTable(var,*RoomName);
+                                }
                                 if(err != Client_Mssages::ADD_DATA_SUCCESSFULLY)
                                 {
+                                    qDebug() << "inside Error@@@";
                                     //handle error
                                     exit(1);
                                 }
@@ -107,6 +112,7 @@ short Client_Mssages::add_in_Room(QString* RoomName,QString sender,QString Date,
 
                     }else {
                         //hanlde error
+                         qDebug() << "OutSide Error@@@";
                         exit(1);
                     }
 
@@ -498,25 +504,35 @@ QByteArray Client_Mssages::getupdates( QString lastUserUpdate, TextMessage msg)
     }
 
 
-    QJsonObject objs;
+    QJsonArray messagesArray;
+
+
     while(query_getUpdates.next())
     {
 
-        QJsonArray data;
-        QString messageNew = query_getUpdates.value("message").toString();
+        QJsonObject obj;
+        obj.insert("username",query_getUpdates.value("name").toString());
+        obj.insert("message",query_getUpdates.value("message").toString());
+        obj.insert("date",query_getUpdates.value("date").toString());
+        obj.insert("isFile",query_getUpdates.value("isFile").toBool());
 
-        data.append(messageNew);
-        QString timeNew = query_getUpdates.value("date").toString();
-        data.append(timeNew);
+        messagesArray.append(obj);
 
-        objs.insert(query_getUpdates.value("name").toString(),data);
+        //        QJsonArray data;
+        //        QString messageNew = query_getUpdates.value("message").toString();
 
-        objs.insert("isFile",query_getUpdates.value("isFile").toBool());
+        //        data.append(messageNew);
+        //        QString timeNew = query_getUpdates.value("date").toString();
+        //        data.append(timeNew);
+
+        //        objs.insert(query_getUpdates.value("name").toString(),data);
+
+        //        objs.insert("isFile",query_getUpdates.value("isFile").toBool());
 
 
     }
     QJsonDocument docMessages;
-    docMessages.setObject(objs);
+    docMessages.setArray(messagesArray);
     query_getUpdates.finish();
     return  docMessages.toJson();
 }
