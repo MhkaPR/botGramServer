@@ -51,9 +51,6 @@ void updateClient::fixUpdates(QString username, QString RoomName)
 
     QJsonObject obj_Rooms;
 
-
-
-
     QSqlQuery QueryInUserInformationForCheckLastMessage(db);
     QueryInUserInformationForCheckLastMessage.prepare("SELECT * FROM "+username);
     if(!QueryInUserInformationForCheckLastMessage.exec())
