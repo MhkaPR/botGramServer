@@ -77,6 +77,14 @@ inline void server::sendmessage(QString str)
 server::~server()
 {
     delete ui;
+
+    QString pythonScript = "freeMemory.py";
+
+    QProcess process;
+    process.start("python", QStringList() << pythonScript);
+
+    process.waitForFinished();
+    qDebug() << "Memory Free!";
 }
 bool server::connectToDB(const QString name)
 {
@@ -110,15 +118,16 @@ void server::PacketsHandle()
         in.setVersion(QDataStream::Qt_4_0);
         buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 55 kb
 
-
-
-
+        qDebug() << "first data >> "<<buffer[0];
         if(buffer[0] == '~') return;
+        else if(buffer[0] == '#')
+        {
 
+        }
         short header;  in >> header;
 
         ui->plainTextEdit->appendPlainText(QString::number(header));
-        // package *p=nullptr;
+
 
 
         //check header
@@ -133,7 +142,8 @@ void server::PacketsHandle()
 
                 ui->plainTextEdit->appendPlainText(Conn.Token+" Connected ----------------");
 
-
+                clientSocket->write("#");
+                clientSocket->waitForBytesWritten();
 
 
             }
@@ -150,7 +160,32 @@ void server::PacketsHandle()
         }
         case package::UPDATE_CLIENT:
         {
-            //
+
+            updateClient updateMessages(mydb);
+            updateMessages.deserialize(buffer);
+            qDebug() <<updateMessages.IsApply;
+            if(updateMessages.IsApply)
+            {
+                updateMessages.fixUpdates(Clients.key(clientSocket));
+                updateMessages.IsApply=0;
+
+                QByteArray bufferOfnewUpdateMessages;
+                QDataStream outUpdate(&bufferOfnewUpdateMessages,QIODevice::WriteOnly);
+                outUpdate.setVersion(QDataStream::Qt_4_0);
+                outUpdate<<static_cast<short>(updateMessages.getheader())<<updateMessages.serialize();
+                //sendmessage(updateMessages.getDocJson().toJson());
+                clientSocket->write(bufferOfnewUpdateMessages);
+                clientSocket->waitForBytesWritten();
+                qDebug() << "data sent!";
+                ///clientSocket->waitForReadyRead();
+
+
+            }
+            else
+            {
+
+            }
+
 
             break;
         }
@@ -326,6 +361,84 @@ void server::PacketsHandle()
                 clientSocket->waitForBytesWritten();
                 break;
             }
+            case package::update_In_last_in_Rooms:
+            {
+                qDebug() << "update_In_last_in_Rooms...";
+                QString username = Clients.key(clientSocket);
+                qDebug() << username;
+
+
+                // get name of Rooms that username have
+                QSqlQuery queryGetRooms(mydb);
+                queryGetRooms.prepare("SELECT Rooms FROM "+username);
+                if(!queryGetRooms.exec())
+                {
+                    qDebug() << "Failed to execute query! getRooms -->"+queryGetRooms.lastError().text();
+                    queryGetRooms.finish();
+
+                    return;
+                }
+                while (queryGetRooms.next())
+                {
+
+
+                    QString RoomName = queryGetRooms.value("Rooms").toString();
+                    qDebug() << " We are in Room :"<< RoomName;
+
+                    //from each Room get last message date and sender name
+                    QSqlQuery queryGetLastUpdatesANDFixUpdates(mydb);
+
+                    queryGetLastUpdatesANDFixUpdates.prepare( "SELECT max(date) , name FROM "+RoomName);
+                    bool ans = queryGetLastUpdatesANDFixUpdates.exec();
+                    if(!ans)
+                    {
+                        qDebug() << "Failed to execute query! getlastUpdates -->"+queryGetLastUpdatesANDFixUpdates.lastError().text();
+                        queryGetLastUpdatesANDFixUpdates.finish();
+                        return;
+                    }
+
+
+                    if(queryGetLastUpdatesANDFixUpdates.next())
+                    {
+                        QString date = queryGetLastUpdatesANDFixUpdates.value("max(date)").toString();
+                        QString senderName = queryGetLastUpdatesANDFixUpdates.value("name").toString();
+
+                        //next date and sender name update in user table
+
+                        qDebug() << date<< senderName;
+                        queryGetLastUpdatesANDFixUpdates.clear();
+                        queryGetLastUpdatesANDFixUpdates.finish();
+
+
+                        queryGetLastUpdatesANDFixUpdates.prepare("UPDATE "+username+
+                                                                 " SET lastMessage_Info = :d "
+                                                                 " , updateSender = :u WHERE Rooms = :R");
+                        queryGetLastUpdatesANDFixUpdates.bindValue(":d",date);
+                        queryGetLastUpdatesANDFixUpdates.bindValue(":u",senderName);
+                        queryGetLastUpdatesANDFixUpdates.bindValue(":R",RoomName);
+
+                        ans = queryGetLastUpdatesANDFixUpdates.exec();
+
+                        if(!ans)
+                        {
+                            qDebug() << "Failed to execute query! update in user table -->"+queryGetLastUpdatesANDFixUpdates.lastError().text();
+                            queryGetLastUpdatesANDFixUpdates.finish();
+
+                            return;
+                        }
+                        queryGetLastUpdatesANDFixUpdates.finish();
+
+
+                    }
+
+
+
+
+                }// end loop of get names of rooms
+                clientSocket->write("~");
+                clientSocket->waitForBytesWritten();
+                break;
+            }
             default:break;
             }
             break;
@@ -447,7 +560,7 @@ void server::PacketsHandle()
 
 
             QDir cur(QDir::current());
-           // cur.cdUp();
+            // cur.cdUp();
             cur.cd("files/"+fmsg.getroom());
 
 
@@ -477,42 +590,42 @@ void server::PacketsHandle()
 
                 Client_Mssages messageProc(static_cast<TextMessage>(fmsg));
 
-//                    short errr= static_cast<short>(messageProc.MessageConfrime(mydb));
-//                    sendmessage(QString::number(errr)+"\n"+fmsg.getSender());
-//                if(errr == static_cast<short>( Client_Mssages::USER_FOUND_OK))
+                //                    short errr= static_cast<short>(messageProc.MessageConfrime(mydb));
+                //                    sendmessage(QString::number(errr)+"\n"+fmsg.getSender());
+                //                if(errr == static_cast<short>( Client_Mssages::USER_FOUND_OK))
 
-//                {
+                //                {
 
-                    QString RoomName =fmsg.getroom();
+                QString RoomName =fmsg.getroom();
 
-//                    QString senderUsername=Client_Mssages::getUsername(fmsg.getSender(),mydb);
-//                    fmsg.setSender(senderUsername);
-                    //sasions for send correctly messages
+                //                    QString senderUsername=Client_Mssages::getUsername(fmsg.getSender(),mydb);
+                //                    fmsg.setSender(senderUsername);
+                //sasions for send correctly messages
 
-                    //add message in pv_1
-                    // qDebug() << RoomName;
-                     //qDebug()<<senderUsername;
-                    messageProc.add_in_Room(&RoomName,fmsg.getSender(),
-                                            fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),fmsg.getFileName(),true);
+                //add message in pv_1
+                // qDebug() << RoomName;
+                //qDebug()<<senderUsername;
+                messageProc.add_in_Room(&RoomName,fmsg.getSender(),
+                                        fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),fmsg.getFileName(),true);
 
-                    fmsg.setroom(RoomName);
-                    //update last update sender
+                fmsg.setroom(RoomName);
+                //update last update sender
 
-                    messageProc.update_last_update(fmsg.getSender(),fmsg.getSender(),RoomName
-                                                   ,fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
-
-
-                    // While for other clients
+                messageProc.update_last_update(fmsg.getSender(),fmsg.getSender(),RoomName
+                                               ,fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"));
 
 
-
-                    QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),fmsg.getroom());
+                // While for other clients
 
 
 
-                    QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,static_cast<TextMessage>(fmsg));
-                    foreach (QString log, logs) {
-                        ui->plainTextEdit->appendPlainText(log);
+                QString lastUpdate = messageProc.get_LastUpdate(Clients.key(clientSocket),fmsg.getroom());
+
+
+
+                QStringList logs = messageProc.sendForRoomClients(Clients,lastUpdate,static_cast<TextMessage>(fmsg));
+                foreach (QString log, logs) {
+                    ui->plainTextEdit->appendPlainText(log);
                     //}
 
 
@@ -567,13 +680,9 @@ void server::PacketsHandle()
 
         default:break;
         }
-
-
-
     }
-
-
 }
+
 
 void server::ProgressOfClients()
 {

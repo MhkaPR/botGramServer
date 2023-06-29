@@ -9,11 +9,16 @@ void updateClient::deserialize(QByteArray buffer)
 
     QByteArray jsonFileArray;
 
-    in >> headerMe >> jsonFileArray;
+    in >> headerMe >>IsApply >> docJsonByteArray;
 
     header =static_cast<HEADERS>(headerMe);
 
-    docJson = QJsonDocument::fromJson(jsonFileArray);
+
+
+
+    //------------
+
+
 
 }
 
@@ -23,8 +28,9 @@ QByteArray updateClient::serialize()
     QDataStream out(&buf,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
 
-    out << static_cast<short>(header) << docJson.toJson();
+    out << static_cast<short>(header) << IsApply<< docJsonByteArray;
     return  buf;
+
 }
 
 updateClient::updateClient(QSqlDatabase DB) : db(DB)
@@ -34,25 +40,22 @@ updateClient::updateClient(QSqlDatabase DB) : db(DB)
 }
 
 
-QJsonDocument updateClient::getDocJson()
+QByteArray updateClient::getDocJson()
 {
-    return docJson;
+    return docJsonByteArray;
 
 }
 
-void updateClient::setDocJson(QJsonDocument doc)
+void updateClient::setDocJson(QByteArray doc)
 {
-    docJson = doc;
+    docJsonByteArray = doc;
 }
 
-void updateClient::fixUpdates(QString username, QString RoomName)
+void updateClient::fixUpdates(QString username)
 {
 
-
+    QJsonDocument DocJson;
     QJsonObject obj_Rooms;
-
-
-
 
     QSqlQuery QueryInUserInformationForCheckLastMessage(db);
     QueryInUserInformationForCheckLastMessage.prepare("SELECT * FROM "+username);
@@ -100,9 +103,12 @@ void updateClient::fixUpdates(QString username, QString RoomName)
 
 
         }
-        obj_Rooms.insert(Room,Array_messages);
+        if(!Array_messages.isEmpty())
+            obj_Rooms.insert(Room,Array_messages);
 
     }
-    docJson.setObject(obj_Rooms);
+    DocJson.setObject(obj_Rooms);
+
+    docJsonByteArray =DocJson.toJson();
 
 }

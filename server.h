@@ -34,6 +34,7 @@
 #include "classes/updatemessagepacket.h"
 
 #include <QDir>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }
