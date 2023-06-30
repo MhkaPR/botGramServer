@@ -297,14 +297,33 @@ void server::PacketsHandle()
                 QJsonObject obj = doc.object();
 
 
-
+                //fix correct Room name
                 QDir cur = QDir::current();
-                //cur.cdUp();
-                cur.cd("files/"+obj["room"].toString());
 
+                QString RoomForDownloadFormItFile = obj["room"].toString();
+                QString dirForDownloadFileFormThere="files/";
+
+
+                if(cur.exists(dirForDownloadFileFormThere+RoomForDownloadFormItFile))
+                {
+                    cur.cd(dirForDownloadFileFormThere);
+                }
+                else
+                {
+                    //swap usernames;
+                    QStringList temp = RoomForDownloadFormItFile.split("_");
+                    swap(temp[1],temp[2]);
+                    RoomForDownloadFormItFile += temp.join("_");
+                    cur.cd(dirForDownloadFileFormThere+RoomForDownloadFormItFile);
+                }
+
+
+                //fix setting for load file on RAM from Hard disk
                 QString filename = obj["FileName"].toString();
-                QString filename_AND_Address = cur.path()+"/"+obj["room"].toString()+"---"+filename;
+                QString filename_AND_Address = cur.path()+"/"+/*RoomForDownloadFormItFile+"---"+*/filename;
                 QFile *filefound = new QFile(filename_AND_Address);
+
+
 
                 if(filefound->exists())
                 {
@@ -312,9 +331,10 @@ void server::PacketsHandle()
                     {
 
                         fileMessage fmsg(Clients.key(clientSocket));
-                        fmsg.setroom(obj["room"].toString());
+                        fmsg.setroom(RoomForDownloadFormItFile);
                         fmsg.setFileName(filename);
-                        fmsg.settimeSend(QDateTime::fromString(obj["FileName"].toString().left(17)));
+
+                        fmsg.settimeSend(QDateTime::fromString(filename.split(".")[0],"yyyyMMddhhmmsszzz"));
                         fmsg.setcount_size("0");
                         fmsg.sendFile(filefound,clientSocket);
 
@@ -537,8 +557,7 @@ void server::PacketsHandle()
         {
 
             static quint64 count = 1;
-            //sendmessage(QString::number(buffer.length()));
-            //sendmessage(QString::number(buffer.length()));
+
             fileMessage fmsg(Clients.key(clientSocket));
 
             fmsg.deserialize(buffer);
@@ -546,21 +565,9 @@ void server::PacketsHandle()
             static quint64 bufsize=0;
             bufsize += static_cast<quint64>(buffer.size());
 
-            //            static QByteArray bufRam;
-            //            qint32 bufsize = bufRam.size();
-
-            //            bufRam.append(fmsg.getData());
-            //
-            //datasInRam[fmsg.getroom()][fmsg.getFileName()].append(fmsg.getData());// add part of file in ram
-
-
-
-
-
-
 
             QDir cur(QDir::current());
-            // cur.cdUp();
+            //
             cur.cd("files/"+fmsg.getroom());
 
 
