@@ -306,17 +306,17 @@ void server::PacketsHandle()
 
                 if(cur.exists(dirForDownloadFileFormThere+RoomForDownloadFormItFile))
                 {
-                    cur.cd(dirForDownloadFileFormThere);
+                    cur.cd(dirForDownloadFileFormThere + RoomForDownloadFormItFile);
                 }
                 else
                 {
                     //swap usernames;
                     QStringList temp = RoomForDownloadFormItFile.split("_");
                     swap(temp[1],temp[2]);
-                    RoomForDownloadFormItFile += temp.join("_");
+                    RoomForDownloadFormItFile = temp.join("_");
                     cur.cd(dirForDownloadFileFormThere+RoomForDownloadFormItFile);
                 }
-
+                qDebug() << cur.path();
 
                 //fix setting for load file on RAM from Hard disk
                 QString filename = obj["FileName"].toString();
@@ -324,6 +324,8 @@ void server::PacketsHandle()
                 QFile *filefound = new QFile(filename_AND_Address);
 
 
+                  qDebug() << "filename :" <<filename;
+                  qDebug() << "filename_AND_Address :" <<filename_AND_Address;
 
                 if(filefound->exists())
                 {
@@ -336,8 +338,11 @@ void server::PacketsHandle()
 
                         fmsg.settimeSend(QDateTime::fromString(filename.split(".")[0],"yyyyMMddhhmmsszzz"));
                         fmsg.setcount_size("0");
-                        fmsg.sendFile(filefound,clientSocket);
 
+
+
+
+                        fmsg.sendFile(filefound,clientSocket);
 
                     }
 
@@ -556,24 +561,50 @@ void server::PacketsHandle()
         case package::FILEMESSAGE:
         {
 
+
             static quint64 count = 1;
 
+            // deserialize fmsg
             fileMessage fmsg(Clients.key(clientSocket));
-
             fmsg.deserialize(buffer);
 
+
+            //controll 50kb 50kb for data
             static quint64 bufsize=0;
             bufsize += static_cast<quint64>(buffer.size());
 
 
+
+            //check if need swap
             QDir cur(QDir::current());
-            //
-            cur.cd("files/"+fmsg.getroom());
+            QString dirForReceiveANDSaveFileInServer = "files/";
+            QString RoomForReceiveANDSaveFileInServer = fmsg.getroom();
+            if(cur.exists(dirForReceiveANDSaveFileInServer + RoomForReceiveANDSaveFileInServer))
+            {
+                cur.cd(dirForReceiveANDSaveFileInServer + RoomForReceiveANDSaveFileInServer);
+            }
+            else
+            {
+                //swap usernames
+                QStringList temp = RoomForReceiveANDSaveFileInServer.split("_");
+                swap(temp[1],temp[2]);
+                RoomForReceiveANDSaveFileInServer = temp.join("_");
+
+                //if first message is a file here handled
+                if(!cur.exists(dirForReceiveANDSaveFileInServer + RoomForReceiveANDSaveFileInServer))
+                {
+                    cur.mkdir(dirForReceiveANDSaveFileInServer + RoomForReceiveANDSaveFileInServer);
+                }
+
+                cur.cd(dirForReceiveANDSaveFileInServer + RoomForReceiveANDSaveFileInServer);
+
+            }
 
 
 
 
-            QFile fileReceiive(cur.path()+"/"+fmsg.getroom()+"---"+fmsg.getFileName());
+
+            QFile fileReceiive(cur.path()+"/"+/*fmsg.getroom()+"---"+*/fmsg.getFileName());
 
 
             if(!fileReceiive.open(QIODevice::Append | QIODevice::WriteOnly))
@@ -582,7 +613,7 @@ void server::PacketsHandle()
                 exit(1);
             }
             fileReceiive.write(fmsg.getData());
-            ui->plainTextEdit->appendPlainText("loaded "+QString::number(bufsize));
+            ui->plainTextEdit->appendPlainText("loaded ("+QString::number(bufsize)+")");
             //fileReceiive.flush()
             fileReceiive.close();
 
@@ -597,21 +628,11 @@ void server::PacketsHandle()
 
                 Client_Mssages messageProc(static_cast<TextMessage>(fmsg));
 
-                //                    short errr= static_cast<short>(messageProc.MessageConfrime(mydb));
-                //                    sendmessage(QString::number(errr)+"\n"+fmsg.getSender());
-                //                if(errr == static_cast<short>( Client_Mssages::USER_FOUND_OK))
 
-                //                {
 
                 QString RoomName =fmsg.getroom();
 
-                //                    QString senderUsername=Client_Mssages::getUsername(fmsg.getSender(),mydb);
-                //                    fmsg.setSender(senderUsername);
-                //sasions for send correctly messages
 
-                //add message in pv_1
-                // qDebug() << RoomName;
-                //qDebug()<<senderUsername;
                 messageProc.add_in_Room(&RoomName,fmsg.getSender(),
                                         fmsg.gettimeSend().toString("yyyy.MM.dd-hh:mm:ss.zzz"),fmsg.getFileName(),true);
 
