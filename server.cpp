@@ -113,14 +113,25 @@ void server::PacketsHandle()
 
 
 
+
         QByteArray buffer ;
         QDataStream in(&buffer,QIODevice::ReadOnly);
         in.setVersion(QDataStream::Qt_4_0);
-
+        buffer.clear();
         buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 55 kb
 
+
+
         qDebug() << "data ->>\n" << buffer;
-        if(buffer[0] == '$') return;
+        if(buffer[0] == '$' && buffer.size() >=2)
+        {
+            buffer.remove(0,1);
+        }
+        if(buffer[0] == '~')
+        {
+            qDebug() << "\n\n\n---------------------\n\n\n"<< buffer.size() << "\n\n\n---------------------\n\n\n";
+            return;
+        }
         else if(buffer[0] == '#')
         {
 
