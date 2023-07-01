@@ -125,7 +125,8 @@ void server::PacketsHandle()
         qDebug() << "data ->>\n" << buffer;
         if(buffer[0] == '$' && buffer.size() >=2)
         {
-            buffer.remove(0,1);
+            while(buffer.startsWith('$'))
+                buffer.remove(0,1);
         }
         if(buffer[0] == '~')
         {
@@ -336,8 +337,8 @@ void server::PacketsHandle()
                 QFile *filefound = new QFile(filename_AND_Address);
 
 
-                  qDebug() << "filename :" <<filename;
-                  qDebug() << "filename_AND_Address :" <<filename_AND_Address;
+                qDebug() << "filename :" <<filename;
+                qDebug() << "filename_AND_Address :" <<filename_AND_Address;
 
                 if(filefound->exists())
                 {
