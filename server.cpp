@@ -116,10 +116,11 @@ void server::PacketsHandle()
         QByteArray buffer ;
         QDataStream in(&buffer,QIODevice::ReadOnly);
         in.setVersion(QDataStream::Qt_4_0);
+
         buffer = clientSocket->read(MAX_LENGTH_DATA); // get maximum 55 kb
 
-        qDebug() << "first data >> "<<buffer[0];
-        if(buffer[0] == '~') return;
+        qDebug() << "data ->>\n" << buffer;
+        if(buffer[0] == '$') return;
         else if(buffer[0] == '#')
         {
 
@@ -382,7 +383,7 @@ void server::PacketsHandle()
 
                 query.finish();
                 mydb.commit();
-                clientSocket->write("~");
+                clientSocket->write("$");
                 clientSocket->waitForBytesWritten();
                 break;
             }
@@ -460,7 +461,7 @@ void server::PacketsHandle()
 
 
                 }// end loop of get names of rooms
-                clientSocket->write("~");
+                clientSocket->write("$");
                 clientSocket->waitForBytesWritten();
                 break;
             }
@@ -669,7 +670,7 @@ void server::PacketsHandle()
 
             }
 
-            QString temp = "~";
+            QString temp = "$";
             clientSocket->write(temp.toStdString().c_str());
             clientSocket->waitForBytesWritten();
 
