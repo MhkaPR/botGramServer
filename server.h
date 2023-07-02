@@ -5,6 +5,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QList>
+#include <QMap>
 
 #include <QTcpServer>
 #include <QMessageBox>
@@ -21,6 +22,20 @@
 #include <QSqlRecord>
 #include <QSqlQueryModel>
 
+#include "classes/database.h"
+#include "classes/verify.h"
+#include "classes/authentication.h"
+#include "classes/tokenbuilder.h"
+#include "classes/client_mssages.h"
+#include "classes/room.h"
+#include "classes/roompacket.h"
+#include "classes/updateclient.h"
+#include "classes/searchuser.h"
+#include "classes/updatemessagepacket.h"
+
+#include <QDir>
+#include <QProcess>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }
 QT_END_NAMESPACE
@@ -32,10 +47,13 @@ class server : public QMainWindow
 
 public:
     server(QWidget *parent = nullptr);
+    inline void sendmessage(QString str);
     ~server();
 
 private slots:
     void ProgressOfClients();
+    void PacketsHandle();
+    void disConnectClient();
 private:
     Ui::server *ui;
 
@@ -46,5 +64,13 @@ private:
     QString DB_Name = "ServerDb.db";
     QTcpServer *tcpServer = nullptr;
     QList<QString> fortunes;
+
+
+    QMap<QString,QTcpSocket*> Clients;
+    QList<QTcpSocket*> clients;
+    QList<QString> Clients_Username;
+
+     QMap<QString,QMap<QString,QByteArray>> datasInRam;
+
 };
 #endif // SERVER_H

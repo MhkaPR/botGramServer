@@ -18,14 +18,62 @@ DESTDIR = $$PWD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    classes/adduser_spacket.cpp \
+    classes/authentication.cpp \
+    classes/checkverifysafepacket.cpp \
+    classes/client.cpp \
+    classes/client_mssages.cpp \
+    classes/connectverify.cpp \
     classes/database.cpp \
+#    classes/imgaemessage.cpp \
+    classes/filemessage.cpp \
+    classes/loginpacket.cpp \
+    classes/package.cpp \
+#    classes/package.cpp \
+    classes/pvroom.cpp \
+    classes/queriespacket.cpp \
+    classes/room.cpp \
+    classes/roompacket.cpp \
+    classes/searchuser.cpp \
+    classes/systemmessagepacket.cpp \
+    classes/textmessage.cpp \
+    classes/tokenbuilder.cpp \
+    classes/tokenpacket.cpp \
+    classes/updateclient.cpp \
+    classes/updatemessagepacket.cpp \
+    classes/verify.cpp \
     main.cpp \
-    server.cpp
+    server.cpp \
+#    verify.cpp
 
 HEADERS += \
     classes/Packages.h \
+    classes/adduser_spacket.h \
+    classes/authentication.h \
+    classes/checkverifysafepacket.h \
+    classes/client.h \
+    classes/client_mssages.h \
+    classes/connectverify.h \
     classes/database.h \
-    server.h
+#    classes/imgaemessage.h \
+    classes/filemessage.h \
+    classes/loginpacket.h \
+    classes/package.h \
+#    classes/package.h \
+    classes/pvroom.h \
+    classes/queriespacket.h \
+    classes/room.h \
+    classes/roompacket.h \
+    classes/searchuser.h \
+    classes/systemmessagepacket.h \
+    classes/textmessage.h \
+    classes/tokenbuilder.h \
+    classes/tokenpacket.h \
+    classes/updateclient.h \
+    classes/updatemessagepacket.h \
+    classes/verify.h \
+    server.h \
+#    verify.h
 
 FORMS += \
     server.ui
